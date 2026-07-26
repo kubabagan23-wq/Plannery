@@ -192,7 +192,6 @@
 
       <button onclick="toggleNotifications()" id="notifications-toggle-btn" style="width: 100%; text-align: left; padding: 10px; border-radius: 8px; font-weight: bold; margin-bottom: 10px;"></button>
       <p id="notifications-status" style="font-size: 12px; color: #777; margin-top: -5px;"></p>
-      <button onclick="sendTestNotification()" style="width: 100%; height: 32px; font-size: 12px; border-radius: 6px; margin-bottom: 15px;">Send Test Notification</button>
 
       <button onclick="toggleAccountSection()" id="account-toggle-btn" style="width: 100%; text-align: left; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
         <span id="label-account"></span>
@@ -315,7 +314,7 @@
         notificationsBlocked: "🔕 Notifications Blocked", notificationsUnsupported: "Notifications not supported",
         notificationsOffDesc: "Get a reminder in your browser 15 minutes before a task starts.",
         notificationsOnDesc: "You'll get reminders 15 minutes before tasks start.",
-        notificationsBlockedDesc: "Notifications are blocked in your browser settings for this site.",
+        notificationsBlockedDesc: "Notifications are blocked for this site. To fix it: click the icon next to your browser's address bar, switch Notifications to Allow, then refresh this page.",
         timeFormat: "Time Format", hour24: "24-hour (e.g. 16:45)", hour12: "12-hour (e.g. 4:45 PM)",
         changeEmail: "Change Email", save: "Save"
       },
@@ -672,21 +671,6 @@
         btn.textContent = t('enableNotifications');
         status.textContent = t('notificationsOffDesc');
       }
-    }
-
-    function sendTestNotification() {
-      if (!('Notification' in window)) {
-        alert("Your browser doesn't support notifications.");
-        return;
-      }
-      if (Notification.permission !== 'granted') {
-        alert("Please click 'Enable Notifications' first and allow the permission popup.");
-        return;
-      }
-      new Notification("Plannery Test", {
-        body: "If you see this, notifications are working! 🎉",
-        icon: "plannery_logo.png"
-      });
     }
 
     async function toggleNotifications() {

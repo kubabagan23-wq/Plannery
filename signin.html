@@ -140,7 +140,13 @@
         return;
       }
 
-      const { data, error } = await supabaseClient.auth.signUp({ email, password });
+      const { data, error } = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: new URL('email-confirmed.html', window.location.href).toString()
+        }
+      });
 
       if (error) {
         messageEl.textContent = error.message;
