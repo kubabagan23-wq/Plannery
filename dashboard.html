@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard - Plannery</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <style>
+    button {
+      cursor: pointer;
+      transition: opacity 0.15s ease, transform 0.1s ease;
+      border: 1px solid rgba(0,0,0,0.15);
+    }
+    button:hover {
+      opacity: 0.85;
+    }
+    button:active {
+      transform: scale(0.97);
+    }
+    #save-task-btn, #save-username-btn, #save-password-btn, #save-email-btn {
+      background-color: #cd6f01;
+      color: white;
+      border: none;
+    }
+    #month-label {
+      letter-spacing: 0.5px;
+    }
+    .day-cell {
+      transition: box-shadow 0.15s ease, transform 0.1s ease;
+    }
+    .day-cell:hover {
+      box-shadow: 0 0 0 2px #cd6f01 inset;
+      transform: translateY(-1px);
+    }
+    .sidebar-box, #task-panel, #settings-panel {
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    }
+    #username-label {
+      color: #cd6f01;
+    }
+    #account-toggle-btn, .day-name {
+      border: none;
+      background: transparent;
+    }
+    @media (max-width: 700px) {
+      #main-content {
+        flex-direction: column !important;
+      }
+      #calendar {
+        width: 100% !important;
+        grid-template-columns: repeat(7, minmax(30px, 1fr)) !important;
+        gap: 3px !important;
+      }
+      .day-cell {
+        min-height: 50px !important;
+        padding: 3px !important;
+      }
+      .day-num {
+        font-size: 11px !important;
+      }
+      .task-tag {
+        font-size: 9px !important;
+        padding: 1px 2px !important;
+      }
+      .day-name {
+        font-size: 11px !important;
+        padding: 4px !important;
+      }
+      #corner-clock {
+        width: 140px !important;
+        height: 44px !important;
+        font-size: 14px !important;
+        bottom: 10px !important;
+        right: 10px !important;
+      }
+      .sidebar-box {
+        width: 100% !important;
+      }
+      #month-label {
+        font-size: 20px !important;
+        margin: 0 8px !important;
+      }
+      #task-panel {
+        max-width: 92% !important;
+        margin: 20px auto !important;
+      }
+    }
+  </style>
+</head>
+<body id="app-body" style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: white; color: black;">
+
+  <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 30px; background-color: inherit; border-bottom: 2px solid currentColor;">
+    <img src="plannery_logo.png" style="width: 150px; height: auto;">
+    <div style="display: flex; align-items: center; gap: 15px;">
+      <span id="username-label" style="font-weight: bold;"></span>
+      <button onclick="openSettings()" title="Settings" style="width: 40px; height: 40px; font-size: 18px; border-radius: 50%; font-weight: bold; cursor: pointer;">⚙️</button>
+    </div>
+  </div>
+
+  <div id="main-content" style="display: flex; align-items: flex-start; gap: 20px; padding: 20px; flex-wrap: wrap;">
+
+    <div style="flex: 1; min-width: 320px;">
+      <div style="text-align: center; margin: 10px 0 30px 0;">
+        <button onclick="changeMonth(-1)" style="width: 40px; height: 40px; font-size: 18px; border-radius: 8px; font-weight: bold;">←</button>
+        <span id="month-label" style="font-size: 28px; font-weight: bold; margin: 0 20px;"></span>
+        <button onclick="changeMonth(1)" style="width: 40px; height: 40px; font-size: 18px; border-radius: 8px; font-weight: bold;">→</button>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <div id="calendar" style="width: 1225px; max-width: 100%; display: grid; grid-template-columns: repeat(7, minmax(90px,175px)); gap: 5px;"></div>
+      </div>
+    </div>
+
+    <div class="sidebar-box" style="width: 280px; flex-shrink: 0; border: 2px solid currentColor; border-radius: 10px; padding: 15px; box-sizing: border-box;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <button onclick="agendaShift(-1)" style="width: 30px; height: 30px; border-radius: 6px; font-weight: bold;">←</button>
+        <div style="text-align: center;">
+          <div id="agenda-date-label" style="font-weight: bold; font-size: 14px;"></div>
+          <div id="agenda-today-tag" style="font-size: 11px; color: #cd6f01; font-weight: bold;"></div>
+        </div>
+        <button onclick="agendaShift(1)" style="width: 30px; height: 30px; border-radius: 6px; font-weight: bold;">→</button>
+      </div>
+      <button onclick="agendaResetToday()" id="back-to-today-btn" style="width: 100%; height: 28px; font-size: 12px; border-radius: 6px; margin-bottom: 10px;"></button>
+      <div id="agenda-list"></div>
+    </div>
+
+  </div>
+
+  <div id="task-panel" style="display: none; max-width: 420px; margin: 30px auto; padding: 20px; border: 2px solid currentColor; border-radius: 10px; position: relative; opacity: 0; transform: scale(0.9); transition: opacity 0.25s ease, transform 0.25s ease; max-height: 80vh; overflow-y: auto; box-sizing: border-box; background-color: inherit; color: inherit;">
+    <button onclick="closeTaskPanel()" style="position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; border-radius: 50%; background-color: red; color: white; border: none; font-weight: bold; font-size: 16px; cursor: pointer;">✕</button>
+    <h3 id="task-date-label"></h3>
+    <div id="task-list"></div>
+
+    <hr>
+
+    <h4 id="form-heading" style="margin-bottom: 5px;"></h4>
+
+    <label id="label-title" style="font-weight: bold; font-size: 14px;"></label>
+    <input type="text" id="new-task-title" autocomplete="off" style="width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 10px; box-sizing: border-box;">
+
+    <label id="label-from" style="font-weight: bold; font-size: 14px;"></label>
+    <input type="time" id="new-task-start" style="width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 10px; box-sizing: border-box;">
+
+    <label id="label-to" style="font-weight: bold; font-size: 14px;"></label>
+    <input type="time" id="new-task-end" style="width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 10px; box-sizing: border-box;">
+
+    <label id="label-location" style="font-weight: bold; font-size: 14px;"></label>
+    <input type="text" id="new-task-location" autocomplete="off" style="width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 10px; box-sizing: border-box;">
+
+    <label id="label-description" style="font-weight: bold; font-size: 14px;"></label>
+    <textarea id="new-task-description" rows="2" style="width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 10px; box-sizing: border-box; font-family: Arial, sans-serif;"></textarea>
+
+    <label id="label-note" style="font-weight: bold; font-size: 14px;"></label>
+    <textarea id="new-task-note" rows="2" style="width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 10px; box-sizing: border-box; font-family: Arial, sans-serif;"></textarea>
+
+    <label id="label-attachment" style="font-weight: bold; font-size: 14px;"></label>
+    <input type="file" id="new-task-photo" accept="image/*" style="width: 100%; margin-top: 5px; margin-bottom: 10px;">
+
+    <label id="label-repeat" style="font-weight: bold; font-size: 14px;">Repeat</label><br>
+    <select id="new-task-repeat" onchange="toggleCustomRepeatFields()" style="width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 10px; box-sizing: border-box;">
+      <option value="none">Does not repeat</option>
+      <option value="daily">Every day</option>
+      <option value="weekly">Every week</option>
+      <option value="monthly">Every month</option>
+      <option value="yearly">Every year</option>
+      <option value="custom">Custom...</option>
+    </select>
+
+    <div id="custom-repeat-fields" style="display:none; margin-bottom: 10px;">
+      <span>Every</span>
+      <input type="number" id="new-task-repeat-interval" min="1" value="1" style="width: 60px; padding: 8px; margin: 0 6px; box-sizing: border-box;">
+      <select id="new-task-repeat-unit" style="padding: 8px;">
+        <option value="days">Days</option>
+        <option value="weeks">Weeks</option>
+        <option value="months">Months</option>
+        <option value="years">Years</option>
+      </select>
+    </div>
+
+    <label id="label-color" style="font-weight: bold; font-size: 14px;"></label><br>
+    <input type="color" id="new-task-color" value="#cd6f01" style="width: 60px; height: 40px; margin-top: 5px; margin-bottom: 10px; border: none; padding: 0; cursor: pointer;">
+
+    <button onclick="saveTask()" id="save-task-btn" style="width: 100%; height: 40px; margin-top: 5px; border-radius: 8px; font-weight: bold;"></button>
+    <button onclick="cancelEdit()" id="cancel-edit-btn" style="display: none; width: 100%; height: 35px; margin-top: 8px; border-radius: 8px;"></button>
+    <p id="task-error-message" style="color: red; font-size: 13px; margin-top: 8px;"></p>
+  </div>
+
+  <div id="settings-overlay" style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 999;" onclick="closeSettingsOverlay(event)">
+    <div id="settings-panel" style="background: white; color: black; max-width: 360px; margin: 80px auto; padding: 20px; border-radius: 10px; position: relative; box-sizing: border-box;">
+      <button onclick="closeSettings()" style="position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; border-radius: 50%; background-color: red; color: white; border: none; font-weight: bold; font-size: 16px; cursor: pointer;">✕</button>
+      <h3 id="settings-title"></h3>
+
+      <button onclick="toggleNotifications()" id="notifications-toggle-btn" style="width: 100%; text-align: left; padding: 10px; border-radius: 8px; font-weight: bold; margin-bottom: 10px;"></button>
+      <p id="notifications-status" style="font-size: 12px; color: #777; margin-top: -5px;"></p>
+      <button onclick="sendTestNotification()" style="width: 100%; height: 32px; font-size: 12px; border-radius: 6px; margin-bottom: 15px;">Send Test Notification</button>
+
+      <button onclick="toggleAccountSection()" id="account-toggle-btn" style="width: 100%; text-align: left; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+        <span id="label-account"></span>
+        <span id="account-chevron">▾</span>
+      </button>
+
+      <div id="account-section" style="display: none; padding: 10px 5px; border-left: 2px solid #eee; margin-bottom: 10px;">
+
+        <button onclick="toggleSubForm('username')" id="username-toggle-btn" style="width: 100%; text-align: left; padding: 8px; border-radius: 6px; cursor: pointer; margin-top: 5px;"></button>
+        <div id="username-form" style="display:none; padding: 8px 0;">
+          <input type="text" id="change-username-input" style="width: 100%; padding: 8px; box-sizing: border-box; margin-bottom: 8px;">
+          <button onclick="saveUsername()" id="save-username-btn" style="width: 100%; height: 34px; border-radius: 6px; font-weight: bold;"></button>
+          <p id="username-change-message" style="font-size: 12px; color: red; margin-top: 5px;"></p>
+        </div>
+
+        <button onclick="toggleSubForm('email')" id="email-toggle-btn" style="width: 100%; text-align: left; padding: 8px; border-radius: 6px; cursor: pointer; margin-top: 5px;"></button>
+        <div id="email-form" style="display:none; padding: 8px 0;">
+          <input type="email" id="change-email-input" style="width: 100%; padding: 8px; box-sizing: border-box; margin-bottom: 8px;">
+          <button onclick="saveEmail()" id="save-email-btn" style="width: 100%; height: 34px; border-radius: 6px; font-weight: bold;"></button>
+          <p id="email-change-message" style="font-size: 12px; color: red; margin-top: 5px;"></p>
+        </div>
+
+        <button onclick="toggleSubForm('password')" id="password-toggle-btn" style="width: 100%; text-align: left; padding: 8px; border-radius: 6px; cursor: pointer; margin-top: 5px;"></button>
+        <div id="password-form" style="display:none; padding: 8px 0;">
+          <input type="password" id="change-password-input" style="width: 100%; padding: 8px; box-sizing: border-box; margin-bottom: 8px;">
+          <button onclick="savePassword()" id="save-password-btn" style="width: 100%; height: 34px; border-radius: 6px; font-weight: bold;"></button>
+          <p id="password-change-message" style="font-size: 12px; color: red; margin-top: 5px;"></p>
+        </div>
+
+      </div>
+
+      <label id="label-theme" style="font-weight: bold; font-size: 14px;"></label><br>
+      <select id="theme-select" onchange="applyTheme(this.value)" style="width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 15px; box-sizing: border-box;">
+        <option value="light">Light (black on white)</option>
+        <option value="dark">Dark (white on black)</option>
+        <option value="blue">Blue on black</option>
+        <option value="orange">Orange on black</option>
+      </select>
+
+      <label id="label-language" style="font-weight: bold; font-size: 14px;"></label><br>
+      <select id="language-select" onchange="applyLanguage(this.value)" style="width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 15px; box-sizing: border-box;">
+        <option value="en">English</option>
+        <option value="es">Español (Spanish)</option>
+        <option value="pl">Polski (Polish)</option>
+        <option value="fr">Français (French)</option>
+        <option value="zh">中文 (Chinese)</option>
+        <option value="pt">Português (Portuguese)</option>
+        <option value="de">Deutsch (German)</option>
+        <option value="it">Italiano (Italian)</option>
+        <option value="hi">हिन्दी (Hindi)</option>
+      </select>
+
+      <label id="label-timeformat" style="font-weight: bold; font-size: 14px;"></label><br>
+      <select id="timeformat-select" onchange="applyTimeFormat(this.value)" style="width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 15px; box-sizing: border-box;">
+        <option value="24" id="option-24h"></option>
+        <option value="12" id="option-12h"></option>
+      </select>
+
+      <hr>
+
+      <button onclick="logOut()" id="logout-btn" style="width: 100%; height: 40px; border-radius: 8px; font-weight: bold; margin-top: 10px;"></button>
+
+      <button onclick="deactivateAccount()" id="deactivate-btn" style="width: 100%; height: 40px; border-radius: 8px; margin-top: 10px;"></button>
+
+      <button onclick="openDeleteAccountModal()" id="delete-btn" style="width: 100%; height: 40px; border-radius: 8px; margin-top: 10px; color: red;"></button>
+      <p id="delete-info-message" style="font-size: 12px; color: #777; display:none;"></p>
+    </div>
+  </div>
+
+  <div id="delete-account-overlay" style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); z-index: 1001; align-items: center; justify-content: center;">
+    <div style="background: white; color: black; max-width: 360px; width: 90%; padding: 20px; border-radius: 10px; box-sizing: border-box;">
+      <h3 style="margin-top: 0; color: #d9534f;">Permanently Delete Account</h3>
+      <p style="font-size: 13px; color: #555;">This will permanently delete your account, all your tasks, and all your photos. This cannot be undone. To confirm, enter your email and password.</p>
+
+      <input type="email" id="delete-confirm-email" placeholder="Your email" style="width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 6px;">
+      <input type="password" id="delete-confirm-password" placeholder="Your password" style="width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 6px;">
+
+      <p id="delete-modal-error" style="color: red; font-size: 13px;"></p>
+
+      <div style="display: flex; gap: 10px; margin-top: 10px;">
+        <button onclick="confirmDeleteAccountWithPassword()" style="flex: 1; height: 42px; border-radius: 8px; background-color: #d9534f; color: white; font-weight: bold; border: none; cursor: pointer;">Permanently Delete</button>
+        <button onclick="closeDeleteAccountModal()" style="flex: 1; height: 42px; border-radius: 8px; cursor: pointer;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="confirm-overlay" style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: white; color: black; max-width: 320px; width: 90%; padding: 20px; border-radius: 10px; text-align: center;">
+      <h3 id="confirm-title" style="margin-top: 0;"></h3>
+      <p id="confirm-message" style="font-size: 14px;"></p>
+      <div style="display: flex; gap: 10px; margin-top: 15px;">
+        <button onclick="confirmYes()" id="confirm-delete-btn" style="flex: 1; height: 40px; border-radius: 8px; background-color: #d9534f; color: white; font-weight: bold; border: none; cursor: pointer;"></button>
+        <button onclick="confirmNo()" id="confirm-cancel-btn" style="flex: 1; height: 40px; border-radius: 8px; font-weight: bold; cursor: pointer;"></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="corner-clock" style="position: fixed; bottom: 20px; right: 20px; width: 200px; height: 60px; background-color: black; color: red; font-family: 'Courier New', monospace; font-size: 20px; font-weight: bold; display: flex; justify-content: center; align-items: center; border-radius: 10px; letter-spacing: 2px;"></div>
+
+  <script>
+    // NOTE FOR FUTURE CODE CHANGES: keep #corner-clock width at 200px.
+
+    // ---- Translations ----
+    const translations = {
+      en: {
+        settings: "Settings", theme: "Theme", language: "Language", logOut: "Log Out",
+        deactivate: "Deactivate Account", deleteAccount: "Delete Account",
+        deleteInfo: "Deleting an account permanently requires a secure server step we haven't built yet, so it can't be done safely from this page. Use Deactivate for now.",
+        backToToday: "Back to Today", today: "TODAY", nothingPlanned: "Nothing planned.",
+        addTask: "Add Task", saveChanges: "Save Changes", cancelEdit: "Cancel Edit", editTask: "Edit Task",
+        title: "Title", from: "From", to: "To", location: "Location", description: "Description",
+        note: "Note", attachment: "Attachment (photo)", color: "Color",
+        titlePlaceholder: "Event or task title...", locationPlaceholder: "Where is this happening...",
+        descPlaceholder: "What is this event/task about...", notePlaceholder: "Any extra notes...",
+        edit: "Edit", done: "Done", undo: "Undo", deleteBtn: "Delete",
+        areYouSure: "Are You Sure?", deleteConfirmMsg: 'Delete "{title}"? This cannot be undone.',
+        cancel: "Cancel", pleaseEnterTitle: "Please enter a title.",
+        account: "Account", changeUsername: "Change Username", changePassword: "Change Password",
+        enableNotifications: "🔔 Enable Notifications", notificationsOn: "🔔 Notifications On",
+        notificationsBlocked: "🔕 Notifications Blocked", notificationsUnsupported: "Notifications not supported",
+        notificationsOffDesc: "Get a reminder in your browser 15 minutes before a task starts.",
+        notificationsOnDesc: "You'll get reminders 15 minutes before tasks start.",
+        notificationsBlockedDesc: "Notifications are blocked in your browser settings for this site.",
+        timeFormat: "Time Format", hour24: "24-hour (e.g. 16:45)", hour12: "12-hour (e.g. 4:45 PM)",
+        changeEmail: "Change Email", save: "Save"
+      },
+      es: {
+        settings: "Configuración", theme: "Tema", language: "Idioma", logOut: "Cerrar sesión",
+        deactivate: "Desactivar cuenta", deleteAccount: "Eliminar cuenta",
+        deleteInfo: "Eliminar una cuenta de forma permanente requiere un paso seguro del servidor que aún no hemos creado, así que no se puede hacer de forma segura desde esta página. Usa Desactivar por ahora.",
+        backToToday: "Volver a hoy", today: "HOY", nothingPlanned: "Nada planeado.",
+        addTask: "Agregar tarea", saveChanges: "Guardar cambios", cancelEdit: "Cancelar edición", editTask: "Editar tarea",
+        title: "Título", from: "Desde", to: "Hasta", location: "Ubicación", description: "Descripción",
+        note: "Nota", attachment: "Adjunto (foto)", color: "Color",
+        titlePlaceholder: "Título del evento o tarea...", locationPlaceholder: "Dónde está sucediendo esto...",
+        descPlaceholder: "De qué trata este evento/tarea...", notePlaceholder: "Notas adicionales...",
+        edit: "Editar", done: "Hecho", undo: "Deshacer", deleteBtn: "Eliminar",
+        areYouSure: "¿Estás seguro?", deleteConfirmMsg: '¿Eliminar "{title}"? Esto no se puede deshacer.',
+        cancel: "Cancelar", pleaseEnterTitle: "Por favor ingresa un título."
+      },
+      pl: {
+        settings: "Ustawienia", theme: "Motyw", language: "Język", logOut: "Wyloguj się",
+        deactivate: "Dezaktywuj konto", deleteAccount: "Usuń konto",
+        deleteInfo: "Trwałe usunięcie konta wymaga bezpiecznego kroku po stronie serwera, którego jeszcze nie zbudowaliśmy, więc nie można tego bezpiecznie zrobić z tej strony. Na razie użyj Dezaktywuj.",
+        backToToday: "Powrót do dzisiaj", today: "DZIŚ", nothingPlanned: "Nic nie zaplanowano.",
+        addTask: "Dodaj zadanie", saveChanges: "Zapisz zmiany", cancelEdit: "Anuluj edycję", editTask: "Edytuj zadanie",
+        title: "Tytuł", from: "Od", to: "Do", location: "Lokalizacja", description: "Opis",
+        note: "Notatka", attachment: "Załącznik (zdjęcie)", color: "Kolor",
+        titlePlaceholder: "Tytuł wydarzenia lub zadania...", locationPlaceholder: "Gdzie to się odbywa...",
+        descPlaceholder: "Czego dotyczy to wydarzenie/zadanie...", notePlaceholder: "Dodatkowe notatki...",
+        edit: "Edytuj", done: "Zrobione", undo: "Cofnij", deleteBtn: "Usuń",
+        areYouSure: "Czy na pewno?", deleteConfirmMsg: 'Usunąć "{title}"? Tej czynności nie można cofnąć.',
+        cancel: "Anuluj", pleaseEnterTitle: "Proszę wprowadzić tytuł."
+      },
+      fr: {
+        settings: "Paramètres", theme: "Thème", language: "Langue", logOut: "Se déconnecter",
+        deactivate: "Désactiver le compte", deleteAccount: "Supprimer le compte",
+        deleteInfo: "La suppression définitive d'un compte nécessite une étape serveur sécurisée que nous n'avons pas encore mise en place, donc cela ne peut pas être fait en toute sécurité depuis cette page. Utilisez Désactiver pour l'instant.",
+        backToToday: "Retour à aujourd'hui", today: "AUJOURD'HUI", nothingPlanned: "Rien de prévu.",
+        addTask: "Ajouter une tâche", saveChanges: "Enregistrer", cancelEdit: "Annuler la modification", editTask: "Modifier la tâche",
+        title: "Titre", from: "De", to: "À", location: "Lieu", description: "Description",
+        note: "Note", attachment: "Pièce jointe (photo)", color: "Couleur",
+        titlePlaceholder: "Titre de l'événement ou de la tâche...", locationPlaceholder: "Où cela se passe-t-il...",
+        descPlaceholder: "De quoi s'agit-il...", notePlaceholder: "Notes supplémentaires...",
+        edit: "Modifier", done: "Terminé", undo: "Annuler", deleteBtn: "Supprimer",
+        areYouSure: "Êtes-vous sûr ?", deleteConfirmMsg: 'Supprimer "{title}" ? Cette action est irréversible.',
+        cancel: "Annuler", pleaseEnterTitle: "Veuillez saisir un titre."
+      },
+      zh: {
+        settings: "设置", theme: "主题", language: "语言", logOut: "退出登录",
+        deactivate: "停用账户", deleteAccount: "删除账户",
+        deleteInfo: "永久删除账户需要一个我们尚未构建的安全服务器步骤，因此无法在此页面上安全完成。请暂时使用“停用”。",
+        backToToday: "返回今天", today: "今天", nothingPlanned: "没有安排。",
+        addTask: "添加任务", saveChanges: "保存更改", cancelEdit: "取消编辑", editTask: "编辑任务",
+        title: "标题", from: "从", to: "到", location: "地点", description: "描述",
+        note: "备注", attachment: "附件（照片）", color: "颜色",
+        titlePlaceholder: "事件或任务标题...", locationPlaceholder: "地点...",
+        descPlaceholder: "这个事件/任务是关于什么的...", notePlaceholder: "其他备注...",
+        edit: "编辑", done: "完成", undo: "撤销", deleteBtn: "删除",
+        areYouSure: "您确定吗？", deleteConfirmMsg: '删除"{title}"？此操作无法撤销。',
+        cancel: "取消", pleaseEnterTitle: "请输入标题。"
+      },
+      pt: {
+        settings: "Configurações", theme: "Tema", language: "Idioma", logOut: "Sair",
+        deactivate: "Desativar conta", deleteAccount: "Excluir conta",
+        deleteInfo: "Excluir uma conta permanentemente requer uma etapa segura no servidor que ainda não construímos, então não pode ser feito com segurança nesta página. Use Desativar por enquanto.",
+        backToToday: "Voltar para hoje", today: "HOJE", nothingPlanned: "Nada planejado.",
+        addTask: "Adicionar tarefa", saveChanges: "Salvar alterações", cancelEdit: "Cancelar edição", editTask: "Editar tarefa",
+        title: "Título", from: "De", to: "Até", location: "Local", description: "Descrição",
+        note: "Nota", attachment: "Anexo (foto)", color: "Cor",
+        titlePlaceholder: "Título do evento ou tarefa...", locationPlaceholder: "Onde isso está acontecendo...",
+        descPlaceholder: "Sobre o que é este evento/tarefa...", notePlaceholder: "Notas adicionais...",
+        edit: "Editar", done: "Concluído", undo: "Desfazer", deleteBtn: "Excluir",
+        areYouSure: "Tem certeza?", deleteConfirmMsg: 'Excluir "{title}"? Isso não pode ser desfeito.',
+        cancel: "Cancelar", pleaseEnterTitle: "Por favor, insira um título."
+      },
+      de: {
+        settings: "Einstellungen", theme: "Design", language: "Sprache", logOut: "Abmelden",
+        deactivate: "Konto deaktivieren", deleteAccount: "Konto löschen",
+        deleteInfo: "Das dauerhafte Löschen eines Kontos erfordert einen sicheren Serverschritt, den wir noch nicht implementiert haben, daher kann dies auf dieser Seite nicht sicher erfolgen. Verwenden Sie vorerst Deaktivieren.",
+        backToToday: "Zurück zu heute", today: "HEUTE", nothingPlanned: "Nichts geplant.",
+        addTask: "Aufgabe hinzufügen", saveChanges: "Änderungen speichern", cancelEdit: "Bearbeitung abbrechen", editTask: "Aufgabe bearbeiten",
+        title: "Titel", from: "Von", to: "Bis", location: "Ort", description: "Beschreibung",
+        note: "Notiz", attachment: "Anhang (Foto)", color: "Farbe",
+        titlePlaceholder: "Titel des Termins oder der Aufgabe...", locationPlaceholder: "Wo findet das statt...",
+        descPlaceholder: "Worum geht es bei diesem Termin/dieser Aufgabe...", notePlaceholder: "Zusätzliche Notizen...",
+        edit: "Bearbeiten", done: "Erledigt", undo: "Rückgängig", deleteBtn: "Löschen",
+        areYouSure: "Bist du sicher?", deleteConfirmMsg: '"{title}" löschen? Dies kann nicht rückgängig gemacht werden.',
+        cancel: "Abbrechen", pleaseEnterTitle: "Bitte gib einen Titel ein."
+      },
+      it: {
+        settings: "Impostazioni", theme: "Tema", language: "Lingua", logOut: "Esci",
+        deactivate: "Disattiva account", deleteAccount: "Elimina account",
+        deleteInfo: "L'eliminazione permanente di un account richiede un passaggio server sicuro che non abbiamo ancora creato, quindi non può essere eseguita in modo sicuro da questa pagina. Per ora usa Disattiva.",
+        backToToday: "Torna a oggi", today: "OGGI", nothingPlanned: "Nessun impegno.",
+        addTask: "Aggiungi attività", saveChanges: "Salva modifiche", cancelEdit: "Annulla modifica", editTask: "Modifica attività",
+        title: "Titolo", from: "Da", to: "A", location: "Luogo", description: "Descrizione",
+        note: "Nota", attachment: "Allegato (foto)", color: "Colore",
+        titlePlaceholder: "Titolo dell'evento o attività...", locationPlaceholder: "Dove sta succedendo...",
+        descPlaceholder: "Di cosa tratta questo evento/attività...", notePlaceholder: "Note aggiuntive...",
+        edit: "Modifica", done: "Fatto", undo: "Annulla", deleteBtn: "Elimina",
+        areYouSure: "Sei sicuro?", deleteConfirmMsg: 'Eliminare "{title}"? Questa azione non può essere annullata.',
+        cancel: "Annulla", pleaseEnterTitle: "Inserisci un titolo."
+      },
+      hi: {
+        settings: "सेटिंग्स", theme: "थीम", language: "भाषा", logOut: "लॉग आउट",
+        deactivate: "खाता निष्क्रिय करें", deleteAccount: "खाता हटाएं",
+        deleteInfo: "किसी खाते को स्थायी रूप से हटाने के लिए एक सुरक्षित सर्वर चरण की आवश्यकता होती है जिसे हमने अभी तक नहीं बनाया है, इसलिए यह इस पेज से सुरक्षित रूप से नहीं किया जा सकता। अभी के लिए निष्क्रिय करें का उपयोग करें।",
+        backToToday: "आज पर वापस जाएं", today: "आज", nothingPlanned: "कुछ भी योजनाबद्ध नहीं है।",
+        addTask: "कार्य जोड़ें", saveChanges: "परिवर्तन सहेजें", cancelEdit: "संपादन रद्द करें", editTask: "कार्य संपादित करें",
+        title: "शीर्षक", from: "से", to: "तक", location: "स्थान", description: "विवरण",
+        note: "नोट", attachment: "अनुलग्नक (फोटो)", color: "रंग",
+        titlePlaceholder: "इवेंट या कार्य का शीर्षक...", locationPlaceholder: "यह कहाँ हो रहा है...",
+        descPlaceholder: "यह इवेंट/कार्य किस बारे में है...", notePlaceholder: "कोई अतिरिक्त नोट्स...",
+        edit: "संपादित करें", done: "पूर्ण", undo: "पूर्ववत करें", deleteBtn: "हटाएं",
+        areYouSure: "क्या आप निश्चित हैं?", deleteConfirmMsg: '"{title}" हटाएं? इसे पूर्ववत नहीं किया जा सकता।',
+        cancel: "रद्द करें", pleaseEnterTitle: "कृपया एक शीर्षक दर्ज करें।"
+      }
+    };
+
+    let currentLang = 'en';
+    function t(key) {
+      return (translations[currentLang] && translations[currentLang][key]) || translations.en[key] || key;
+    }
+
+    function applyLanguage(lang) {
+      currentLang = translations[lang] ? lang : 'en';
+      localStorage.setItem('plannery-language', currentLang);
+      document.getElementById('language-select').value = currentLang;
+
+      document.getElementById('settings-title').textContent = t('settings');
+      updateNotificationsUI();
+      document.getElementById('label-account').textContent = t('account');
+      document.getElementById('username-toggle-btn').textContent = t('changeUsername');
+      document.getElementById('password-toggle-btn').textContent = t('changePassword');
+      document.getElementById('email-toggle-btn').textContent = t('changeEmail');
+      document.getElementById('save-username-btn').textContent = t('save');
+      document.getElementById('save-password-btn').textContent = t('save');
+      document.getElementById('save-email-btn').textContent = t('save');
+
+      document.getElementById('label-theme').textContent = t('theme');
+      document.getElementById('label-timeformat').textContent = t('timeFormat');
+      document.getElementById('option-24h').textContent = t('hour24');
+      document.getElementById('option-12h').textContent = t('hour12');
+      document.getElementById('label-language').textContent = t('language');
+      document.getElementById('logout-btn').textContent = t('logOut');
+      document.getElementById('deactivate-btn').textContent = t('deactivate');
+      document.getElementById('delete-btn').textContent = t('deleteAccount');
+      document.getElementById('delete-info-message').textContent = t('deleteInfo');
+
+      document.getElementById('back-to-today-btn').textContent = t('backToToday');
+
+      document.getElementById('label-title').textContent = t('title');
+      document.getElementById('label-from').textContent = t('from');
+      document.getElementById('label-to').textContent = t('to');
+      document.getElementById('label-location').textContent = t('location');
+      document.getElementById('label-description').textContent = t('description');
+      document.getElementById('label-note').textContent = t('note');
+      document.getElementById('label-attachment').textContent = t('attachment');
+      document.getElementById('label-color').textContent = t('color');
+
+      document.getElementById('new-task-title').placeholder = t('titlePlaceholder');
+      document.getElementById('new-task-location').placeholder = t('locationPlaceholder');
+      document.getElementById('new-task-description').placeholder = t('descPlaceholder');
+      document.getElementById('new-task-note').placeholder = t('notePlaceholder');
+
+      document.getElementById('cancel-edit-btn').textContent = t('cancelEdit');
+      document.getElementById('save-task-btn').textContent = editingTaskId ? t('saveChanges') : t('addTask');
+      document.getElementById('form-heading').textContent = editingTaskId ? t('editTask') : t('addTask');
+
+      document.getElementById('confirm-title').textContent = t('areYouSure');
+      document.getElementById('confirm-delete-btn').textContent = t('deleteBtn');
+      document.getElementById('confirm-cancel-btn').textContent = t('cancel');
+
+      renderAgenda();
+      if (selectedDateStr) renderTaskList();
+    }
+
+    function loadSavedLanguage() {
+      const saved = localStorage.getItem('plannery-language') || 'en';
+      applyLanguage(saved);
+    }
+
+    // ---- App state ----
+    let currentUser = null;
+    let currentDate = new Date();
+    let selectedDateStr = null;
+    let tasksByDate = {};
+    let allTasksFlat = [];
+    let editingTaskId = null;
+    let agendaDate = new Date();
+
+    async function checkAuth() {
+      const { data } = await supabaseClient.auth.getSession();
+
+      if (data.session) {
+        currentUser = data.session.user;
+        loadProfile();
+        loadTasks();
+        return;
+      }
+
+      setTimeout(async () => {
+        const { data: retryData } = await supabaseClient.auth.getSession();
+        if (retryData.session) {
+          currentUser = retryData.session.user;
+          loadProfile();
+          loadTasks();
+        } else {
+          window.location.href = "login.html";
+        }
+      }, 800);
+    }
+
+    async function loadProfile() {
+      const { data, error } = await supabaseClient
+        .from('profiles')
+        .select('username')
+        .eq('id', currentUser.id)
+        .single();
+
+      if (data && data.username) {
+        document.getElementById('username-label').textContent = data.username;
+        return;
+      }
+
+      // No profile yet - check if we have a pending username saved from signup
+      const pendingUsername = localStorage.getItem('plannery-pending-username');
+      if (pendingUsername) {
+        const { error: upsertError } = await supabaseClient
+          .from('profiles')
+          .upsert([{ id: currentUser.id, username: pendingUsername, deactivated: false }]);
+
+        if (!upsertError) {
+          document.getElementById('username-label').textContent = pendingUsername;
+          localStorage.removeItem('plannery-pending-username');
+          return;
+        }
+      }
+
+      document.getElementById('username-label').textContent = currentUser.email;
+    }
+
+    async function logOut() {
+      await supabaseClient.auth.signOut();
+      window.location.href = "login.html";
+    }
+
+    async function deactivateAccount() {
+      if (!confirm("Deactivate your account? You'll be logged out and your account will be marked inactive.")) return;
+      await supabaseClient.from('profiles').update({ deactivated: true }).eq('id', currentUser.id);
+      await supabaseClient.auth.signOut();
+      window.location.href = "login.html";
+    }
+
+    function openDeleteAccountModal() {
+      document.getElementById('delete-confirm-email').value = "";
+      document.getElementById('delete-confirm-password').value = "";
+      document.getElementById('delete-modal-error').textContent = "";
+      document.getElementById('delete-account-overlay').style.display = "flex";
+    }
+
+    function closeDeleteAccountModal() {
+      document.getElementById('delete-account-overlay').style.display = "none";
+    }
+
+    async function confirmDeleteAccountWithPassword() {
+      const enteredEmail = document.getElementById('delete-confirm-email').value.trim();
+      const enteredPassword = document.getElementById('delete-confirm-password').value;
+      const errorEl = document.getElementById('delete-modal-error');
+      errorEl.textContent = "";
+
+      if (!enteredEmail || !enteredPassword) {
+        errorEl.textContent = "Please enter your email and password.";
+        return;
+      }
+
+      if (enteredEmail.toLowerCase() !== currentUser.email.toLowerCase()) {
+        errorEl.textContent = "That email doesn't match your account.";
+        return;
+      }
+
+      // Verify the password is correct by attempting to sign in again
+      const { error: signInError } = await supabaseClient.auth.signInWithPassword({
+        email: enteredEmail,
+        password: enteredPassword
+      });
+
+      if (signInError) {
+        errorEl.textContent = "Incorrect password.";
+        return;
+      }
+
+      closeDeleteAccountModal();
+      await deleteAccountForReal();
+    }
+
+    async function deleteAccountForReal() {
+      const msg = document.getElementById('delete-info-message');
+      msg.style.display = "block";
+      msg.style.color = "black";
+      msg.textContent = "Deleting your account...";
+
+      const { data: sessionData } = await supabaseClient.auth.getSession();
+      if (!sessionData.session) {
+        msg.style.color = "red";
+        msg.textContent = "You need to be logged in to do this.";
+        return;
+      }
+
+      try {
+        const response = await fetch(supabaseUrl + "/functions/v1/delete-account", {
+          method: "POST",
+          headers: {
+            "Authorization": "Bearer " + sessionData.session.access_token
+          }
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || result.error) {
+          msg.style.color = "red";
+          msg.textContent = "Could not delete account: " + (result.error || "Unknown error.");
+          return;
+        }
+
+        await supabaseClient.auth.signOut();
+        window.location.href = "homeindex.html";
+      } catch (err) {
+        msg.style.color = "red";
+        msg.textContent = "Could not delete account: " + err.message;
+      }
+    }
+
+    // ---- Browser notifications ----
+    let notifiedTaskIds = new Set(JSON.parse(localStorage.getItem('plannery-notified') || '[]'));
+
+    function saveNotifiedIds() {
+      localStorage.setItem('plannery-notified', JSON.stringify([...notifiedTaskIds]));
+    }
+
+    function updateNotificationsUI() {
+      const btn = document.getElementById('notifications-toggle-btn');
+      const status = document.getElementById('notifications-status');
+      if (!('Notification' in window)) {
+        btn.textContent = t('notificationsUnsupported');
+        btn.disabled = true;
+        return;
+      }
+      if (Notification.permission === 'granted') {
+        btn.textContent = t('notificationsOn');
+        status.textContent = t('notificationsOnDesc');
+      } else if (Notification.permission === 'denied') {
+        btn.textContent = t('notificationsBlocked');
+        status.textContent = t('notificationsBlockedDesc');
+      } else {
+        btn.textContent = t('enableNotifications');
+        status.textContent = t('notificationsOffDesc');
+      }
+    }
+
+    function sendTestNotification() {
+      if (!('Notification' in window)) {
+        alert("Your browser doesn't support notifications.");
+        return;
+      }
+      if (Notification.permission !== 'granted') {
+        alert("Please click 'Enable Notifications' first and allow the permission popup.");
+        return;
+      }
+      new Notification("Plannery Test", {
+        body: "If you see this, notifications are working! 🎉",
+        icon: "plannery_logo.png"
+      });
+    }
+
+    async function toggleNotifications() {
+      if (!('Notification' in window)) return;
+      if (Notification.permission === 'default') {
+        await Notification.requestPermission();
+      }
+      updateNotificationsUI();
+    }
+
+    function checkTaskReminders() {
+      if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+      const now = new Date();
+      const todayKey = dateKeyFromDate(now);
+      const tasksToday = tasksByDate[todayKey] || [];
+
+      tasksToday.forEach(task => {
+        if (!task.start_time || task.completed) return;
+
+        const [h, m] = task.start_time.split(':').map(Number);
+        const taskTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m);
+        const minutesUntil = (taskTime - now) / 60000;
+
+        const fifteenMinKey = task.id + "-15min";
+        const startKey = task.id + "-start";
+
+        // Reminder #1: about 15 minutes before the task starts
+        if (!notifiedTaskIds.has(fifteenMinKey) && minutesUntil <= 15 && minutesUntil >= 13) {
+          new Notification("Plannery: " + task.title, {
+            body: (task.location ? "📍 " + task.location + " — " : "") + "Starts in 15 minutes (" + task.start_time + ")",
+            icon: "plannery_logo.png"
+          });
+          notifiedTaskIds.add(fifteenMinKey);
+          saveNotifiedIds();
+        }
+
+        // Reminder #2: right at the task's start time
+        if (!notifiedTaskIds.has(startKey) && minutesUntil <= 0.5 && minutesUntil >= -1) {
+          new Notification("Plannery: " + task.title + " is starting now", {
+            body: (task.location ? "📍 " + task.location : "Starting now"),
+            icon: "plannery_logo.png"
+          });
+          notifiedTaskIds.add(startKey);
+          saveNotifiedIds();
+        }
+      });
+    }
+
+    setInterval(checkTaskReminders, 60000);
+
+    function toggleAccountSection() {
+      const section = document.getElementById('account-section');
+      const chevron = document.getElementById('account-chevron');
+      const isOpen = section.style.display === "block";
+      section.style.display = isOpen ? "none" : "block";
+      chevron.textContent = isOpen ? "▾" : "▴";
+    }
+
+    function toggleSubForm(which) {
+      const form = document.getElementById(which + '-form');
+      form.style.display = (form.style.display === "block") ? "none" : "block";
+    }
+
+    async function saveUsername() {
+      const input = document.getElementById('change-username-input');
+      const msg = document.getElementById('username-change-message');
+      const newUsername = input.value.trim();
+      msg.style.color = "red";
+
+      if (!newUsername) {
+        msg.textContent = t('pleaseEnterTitle');
+        return;
+      }
+
+      const { error } = await supabaseClient
+        .from('profiles')
+        .upsert([{ id: currentUser.id, username: newUsername }]);
+
+      if (error) {
+        msg.textContent = error.message;
+        return;
+      }
+
+      msg.style.color = "green";
+      msg.textContent = "Saved!";
+      document.getElementById('username-label').textContent = newUsername;
+      input.value = "";
+    }
+
+    async function savePassword() {
+      const input = document.getElementById('change-password-input');
+      const msg = document.getElementById('password-change-message');
+      const newPassword = input.value;
+      msg.style.color = "red";
+
+      if (!newPassword || newPassword.length < 6) {
+        msg.textContent = "Password must be at least 6 characters.";
+        return;
+      }
+
+      const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
+
+      if (error) {
+        msg.textContent = error.message;
+        return;
+      }
+
+      msg.style.color = "green";
+      msg.textContent = "Saved!";
+      input.value = "";
+    }
+
+    async function saveEmail() {
+      const input = document.getElementById('change-email-input');
+      const msg = document.getElementById('email-change-message');
+      const newEmail = input.value.trim();
+      msg.style.color = "red";
+
+      if (!newEmail) {
+        msg.textContent = t('pleaseEnterTitle');
+        return;
+      }
+
+      const { error } = await supabaseClient.auth.updateUser({ email: newEmail });
+
+      if (error) {
+        msg.textContent = error.message;
+        return;
+      }
+
+      msg.style.color = "green";
+      msg.textContent = "Check your new email to confirm the change.";
+      input.value = "";
+    }
+
+    function openSettings() {
+      document.getElementById('settings-overlay').style.display = "block";
+    }
+
+    function closeSettings() {
+      document.getElementById('settings-overlay').style.display = "none";
+    }
+
+    function closeSettingsOverlay(e) {
+      if (e.target.id === 'settings-overlay') closeSettings();
+    }
+
+    function applyTheme(theme) {
+      const body = document.getElementById('app-body');
+      if (theme === 'light') {
+        body.style.backgroundColor = "white";
+        body.style.color = "black";
+      } else if (theme === 'dark') {
+        body.style.backgroundColor = "black";
+        body.style.color = "white";
+      } else if (theme === 'blue') {
+        body.style.backgroundColor = "black";
+        body.style.color = "#4da6ff";
+      } else if (theme === 'orange') {
+        body.style.backgroundColor = "black";
+        body.style.color = "#cd6f01";
+      }
+      localStorage.setItem('plannery-theme', theme);
+    }
+
+    // ---- Time format (12h / 24h) ----
+    let timeFormat = '24';
+
+    function formatTimeDisplay(timeStr) {
+      if (!timeStr) return timeStr;
+      if (timeFormat === '24') return timeStr;
+
+      const [hStr, mStr] = timeStr.split(':');
+      let h = parseInt(hStr, 10);
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12;
+      if (h === 0) h = 12;
+      return h + ':' + mStr + ' ' + ampm;
+    }
+
+    function applyTimeFormat(value) {
+      timeFormat = value;
+      document.getElementById('timeformat-select').value = value;
+      localStorage.setItem('plannery-timeformat', value);
+      renderAgenda();
+      if (selectedDateStr) renderTaskList();
+    }
+
+    function loadSavedTimeFormat() {
+      const saved = localStorage.getItem('plannery-timeformat') || '24';
+      applyTimeFormat(saved);
+    }
+
+    function loadSavedTheme() {
+      const saved = localStorage.getItem('plannery-theme') || 'light';
+      document.getElementById('theme-select').value = saved;
+      applyTheme(saved);
+    }
+
+    function dateKey(y, m, d) {
+      return y + "-" + (m + 1).toString().padStart(2, "0") + "-" + d.toString().padStart(2, "0");
+    }
+
+    function dateKeyFromDate(dateObj) {
+      return dateKey(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
+    }
+
+    async function loadTasks() {
+      const { data, error } = await supabaseClient
+        .from('tasks')
+        .select('*')
+        .eq('user_id', currentUser.id);
+
+      if (error) {
+        console.error("Error loading tasks:", error.message);
+      }
+
+      tasksByDate = {};
+      allTasksFlat = data || [];
+      if (data) {
+        data.forEach(task => {
+          if (!tasksByDate[task.date]) tasksByDate[task.date] = [];
+          tasksByDate[task.date].push(task);
+        });
+      }
+      renderCalendar();
+      renderAgenda();
+      checkTaskReminders();
+    }
+
+    function renderCalendar() {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+      document.getElementById('month-label').textContent = monthNames[month] + " " + year;
+
+      const calendarDiv = document.getElementById('calendar');
+      calendarDiv.innerHTML = "";
+
+      const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+      dayNames.forEach(d => {
+        const el = document.createElement('div');
+        el.className = "day-name";
+        el.textContent = d;
+        el.style.fontWeight = "bold";
+        el.style.textAlign = "center";
+        el.style.padding = "8px";
+        calendarDiv.appendChild(el);
+      });
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      for (let i = 0; i < firstDay; i++) {
+        calendarDiv.appendChild(document.createElement('div'));
+      }
+
+      const today = new Date();
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const key = dateKey(year, month, d);
+        const dayCell = document.createElement('div');
+        dayCell.className = "day-cell";
+        dayCell.style.border = "1px solid #ccc";
+        dayCell.style.borderRadius = "8px";
+        dayCell.style.minHeight = "80px";
+        dayCell.style.padding = "6px";
+        dayCell.style.cursor = "pointer";
+        dayCell.style.boxSizing = "border-box";
+        dayCell.style.color = "black";
+        dayCell.style.backgroundColor = "white";
+        dayCell.onclick = () => openTaskPanel(key);
+
+        if (d === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+          dayCell.style.border = "3px solid #cd6f01";
+          dayCell.style.backgroundColor = "#fff8f0";
+        }
+
+        const dayNum = document.createElement('div');
+        dayNum.className = "day-num";
+        dayNum.textContent = d;
+        dayNum.style.fontWeight = "bold";
+        dayCell.appendChild(dayNum);
+
+        const cellTasks = getTasksForDate(key);
+        cellTasks.forEach(task => {
+          const taskEl = document.createElement('div');
+          taskEl.className = "task-tag";
+          taskEl.textContent = task.title + (task.repeat_type && task.repeat_type !== 'none' ? " 🔁" : "");
+          taskEl.style.fontSize = "12px";
+          taskEl.style.backgroundColor = task.color || "#cd6f01";
+          taskEl.style.color = "white";
+          taskEl.style.borderRadius = "4px";
+          taskEl.style.padding = "2px 4px";
+          taskEl.style.marginTop = "3px";
+          taskEl.style.overflow = "hidden";
+          taskEl.style.textOverflow = "ellipsis";
+          taskEl.style.whiteSpace = "nowrap";
+          dayCell.appendChild(taskEl);
+        });
+
+        calendarDiv.appendChild(dayCell);
+      }
+    }
+
+    function changeMonth(offset) {
+      currentDate.setMonth(currentDate.getMonth() + offset);
+      renderCalendar();
+    }
+
+    function renderAgenda() {
+      const key = dateKeyFromDate(agendaDate);
+      const today = new Date();
+      const isToday = dateKeyFromDate(today) === key;
+
+      const label = agendaDate.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+      document.getElementById('agenda-date-label').textContent = label;
+      document.getElementById('agenda-today-tag').textContent = isToday ? t('today') : "";
+
+      const listDiv = document.getElementById('agenda-list');
+      listDiv.innerHTML = "";
+      const tasks = getTasksForDate(key);
+
+      if (tasks.length === 0) {
+        const empty = document.createElement('div');
+        empty.textContent = t('nothingPlanned');
+        empty.style.fontSize = "13px";
+        empty.style.color = "#888";
+        listDiv.appendChild(empty);
+        return;
+      }
+
+      tasks.forEach(task => {
+        const item = document.createElement('div');
+        item.style.borderLeft = "4px solid " + (task.color || "#cd6f01");
+        item.style.padding = "6px 8px";
+        item.style.marginBottom = "6px";
+        item.style.fontSize = "13px";
+        item.style.cursor = "pointer";
+        item.onclick = () => openTaskPanel(key);
+
+        const titleEl = document.createElement('div');
+        titleEl.textContent = task.title;
+        titleEl.style.fontWeight = "bold";
+        if (task.completed) titleEl.style.textDecoration = "line-through";
+        item.appendChild(titleEl);
+
+        if (task.start_time || task.end_time) {
+          const timeEl = document.createElement('div');
+          timeEl.style.fontSize = "11px";
+          timeEl.style.color = "#666";
+          timeEl.textContent = (task.start_time ? formatTimeDisplay(task.start_time) : "?") + " - " + (task.end_time ? formatTimeDisplay(task.end_time) : "?");
+          item.appendChild(timeEl);
+        }
+
+        listDiv.appendChild(item);
+      });
+    }
+
+    function agendaShift(offsetDays) {
+      agendaDate.setDate(agendaDate.getDate() + offsetDays);
+      renderAgenda();
+    }
+
+    function agendaResetToday() {
+      agendaDate = new Date();
+      renderAgenda();
+    }
+
+    function clearForm() {
+      document.getElementById('new-task-title').value = "";
+      document.getElementById('new-task-start').value = "";
+      document.getElementById('new-task-end').value = "";
+      document.getElementById('new-task-location').value = "";
+      document.getElementById('new-task-description').value = "";
+      document.getElementById('new-task-note').value = "";
+      document.getElementById('new-task-photo').value = "";
+      document.getElementById('new-task-color').value = "#cd6f01";
+      document.getElementById('new-task-repeat').value = "none";
+      document.getElementById('new-task-repeat-interval').value = "1";
+      document.getElementById('new-task-repeat-unit').value = "days";
+      document.getElementById('custom-repeat-fields').style.display = "none";
+      document.getElementById('task-error-message').textContent = "";
+      editingTaskId = null;
+      document.getElementById('form-heading').textContent = t('addTask');
+      document.getElementById('save-task-btn').textContent = t('addTask');
+      document.getElementById('cancel-edit-btn').style.display = "none";
+    }
+
+    function toggleCustomRepeatFields() {
+      const value = document.getElementById('new-task-repeat').value;
+      document.getElementById('custom-repeat-fields').style.display = (value === 'custom') ? "block" : "none";
+    }
+
+    function taskOccursOnDate(task, dateStr) {
+      if (!task.repeat_type || task.repeat_type === 'none') {
+        return task.date === dateStr;
+      }
+
+      const origDate = new Date(task.date + 'T00:00:00');
+      const checkDate = new Date(dateStr + 'T00:00:00');
+      if (checkDate < origDate) return false;
+
+      const diffDays = Math.round((checkDate - origDate) / 86400000);
+
+      if (task.repeat_type === 'daily') {
+        return diffDays >= 0;
+      }
+      if (task.repeat_type === 'weekly') {
+        return diffDays % 7 === 0;
+      }
+      if (task.repeat_type === 'monthly') {
+        return checkDate.getDate() === origDate.getDate();
+      }
+      if (task.repeat_type === 'yearly') {
+        return checkDate.getDate() === origDate.getDate() && checkDate.getMonth() === origDate.getMonth();
+      }
+      if (task.repeat_type === 'custom') {
+        const interval = task.repeat_interval || 1;
+        const unit = task.repeat_custom_unit;
+        if (unit === 'days') return diffDays % interval === 0;
+        if (unit === 'weeks') return diffDays % (7 * interval) === 0;
+        if (unit === 'months') {
+          const monthDiff = (checkDate.getFullYear() - origDate.getFullYear()) * 12 + (checkDate.getMonth() - origDate.getMonth());
+          return checkDate.getDate() === origDate.getDate() && monthDiff >= 0 && monthDiff % interval === 0;
+        }
+        if (unit === 'years') {
+          const yearDiff = checkDate.getFullYear() - origDate.getFullYear();
+          return checkDate.getDate() === origDate.getDate() && checkDate.getMonth() === origDate.getMonth() && yearDiff >= 0 && yearDiff % interval === 0;
+        }
+      }
+      return false;
+    }
+
+    function getTasksForDate(dateStr) {
+      return allTasksFlat.filter(task => taskOccursOnDate(task, dateStr));
+    }
+
+    function openTaskPanel(key) {
+      selectedDateStr = key;
+      const panel = document.getElementById('task-panel');
+      panel.style.display = "block";
+      document.getElementById('task-date-label').textContent = key;
+      clearForm();
+      renderTaskList();
+
+      requestAnimationFrame(() => {
+        panel.style.opacity = "1";
+        panel.style.transform = "scale(1)";
+      });
+    }
+
+    function closeTaskPanel() {
+      const panel = document.getElementById('task-panel');
+      panel.style.opacity = "0";
+      panel.style.transform = "scale(0.9)";
+      setTimeout(() => {
+        panel.style.display = "none";
+      }, 250);
+    }
+
+    function startEditTask(task) {
+      editingTaskId = task.id;
+      document.getElementById('new-task-title').value = task.title || "";
+      document.getElementById('new-task-start').value = task.start_time || "";
+      document.getElementById('new-task-end').value = task.end_time || "";
+      document.getElementById('new-task-location').value = task.location || "";
+      document.getElementById('new-task-description').value = task.description || "";
+      document.getElementById('new-task-note').value = task.note || "";
+      document.getElementById('new-task-color').value = task.color || "#cd6f01";
+      document.getElementById('new-task-repeat').value = task.repeat_type || "none";
+      document.getElementById('new-task-repeat-interval').value = task.repeat_interval || 1;
+      document.getElementById('new-task-repeat-unit').value = task.repeat_custom_unit || "days";
+      toggleCustomRepeatFields();
+      document.getElementById('form-heading').textContent = t('editTask');
+      document.getElementById('save-task-btn').textContent = t('saveChanges');
+      document.getElementById('cancel-edit-btn').style.display = "block";
+      document.getElementById('task-error-message').textContent = "";
+      window.scrollTo({ top: document.getElementById('task-panel').offsetTop, behavior: 'smooth' });
+    }
+
+    function cancelEdit() {
+      clearForm();
+    }
+
+    async function renderTaskList() {
+      const listDiv = document.getElementById('task-list');
+      listDiv.innerHTML = "";
+      const tasks = getTasksForDate(selectedDateStr);
+      for (const task of tasks) {
+        const row = document.createElement('div');
+        row.style.border = "1px solid #eee";
+        row.style.borderLeft = "6px solid " + (task.color || "#cd6f01");
+        row.style.borderRadius = "8px";
+        row.style.padding = "8px";
+        row.style.marginBottom = "8px";
+        row.style.color = "black";
+
+        const titleRow = document.createElement('div');
+        titleRow.style.display = "flex";
+        titleRow.style.justifyContent = "space-between";
+        titleRow.style.alignItems = "center";
+
+        const label = document.createElement('span');
+        label.textContent = task.title;
+        label.style.fontWeight = "bold";
+        if (task.completed) label.style.textDecoration = "line-through";
+
+        const btnGroup = document.createElement('div');
+
+        const editBtn = document.createElement('button');
+        editBtn.textContent = t('edit');
+        editBtn.style.marginRight = "5px";
+        editBtn.onclick = () => startEditTask(task);
+
+        const doneBtn = document.createElement('button');
+        doneBtn.textContent = task.completed ? t('undo') : t('done');
+        doneBtn.style.marginRight = "5px";
+        doneBtn.onclick = () => toggleTask(task);
+
+        const delBtn = document.createElement('button');
+        delBtn.textContent = t('deleteBtn');
+        delBtn.onclick = () => askDeleteConfirm(task);
+
+        btnGroup.appendChild(editBtn);
+        btnGroup.appendChild(doneBtn);
+        btnGroup.appendChild(delBtn);
+        titleRow.appendChild(label);
+        titleRow.appendChild(btnGroup);
+        row.appendChild(titleRow);
+
+        if (task.start_time || task.end_time) {
+          const timeEl = document.createElement('div');
+          timeEl.style.fontSize = "12px";
+          timeEl.style.color = "#555";
+          timeEl.textContent = (task.start_time ? formatTimeDisplay(task.start_time) : "?") + " - " + (task.end_time ? formatTimeDisplay(task.end_time) : "?");
+          row.appendChild(timeEl);
+        }
+
+        if (task.location) {
+          const locEl = document.createElement('div');
+          locEl.style.fontSize = "12px";
+          locEl.style.color = "#555";
+          locEl.textContent = "📍 " + task.location;
+          row.appendChild(locEl);
+        }
+
+        if (task.description) {
+          const descEl = document.createElement('div');
+          descEl.style.fontSize = "13px";
+          descEl.style.marginTop = "4px";
+          descEl.textContent = task.description;
+          row.appendChild(descEl);
+        }
+
+        if (task.note) {
+          const noteEl = document.createElement('div');
+          noteEl.style.fontSize = "12px";
+          noteEl.style.marginTop = "4px";
+          noteEl.style.fontStyle = "italic";
+          noteEl.style.color = "#777";
+          noteEl.textContent = "Note: " + task.note;
+          row.appendChild(noteEl);
+        }
+
+        if (task.photo_url) {
+          const img = document.createElement('img');
+          img.style.maxWidth = "100%";
+          img.style.marginTop = "6px";
+          img.style.borderRadius = "6px";
+          const { data: signedData } = await supabaseClient
+            .storage
+            .from('task-photos')
+            .createSignedUrl(task.photo_url, 3600);
+          if (signedData && signedData.signedUrl) {
+            img.src = signedData.signedUrl;
+          }
+          row.appendChild(img);
+        }
+
+        listDiv.appendChild(row);
+      }
+    }
+
+    async function saveTask() {
+      const errorMsg = document.getElementById('task-error-message');
+      const title = document.getElementById('new-task-title').value.trim();
+      const startTime = document.getElementById('new-task-start').value;
+      const endTime = document.getElementById('new-task-end').value;
+      const location = document.getElementById('new-task-location').value.trim();
+      const description = document.getElementById('new-task-description').value.trim();
+      const note = document.getElementById('new-task-note').value.trim();
+      const photoFile = document.getElementById('new-task-photo').files[0];
+      const color = document.getElementById('new-task-color').value;
+      const repeatType = document.getElementById('new-task-repeat').value;
+      const repeatInterval = (repeatType === 'custom') ? parseInt(document.getElementById('new-task-repeat-interval').value, 10) || 1 : null;
+      const repeatUnit = (repeatType === 'custom') ? document.getElementById('new-task-repeat-unit').value : null;
+
+      errorMsg.textContent = "";
+
+      if (!title || !selectedDateStr) {
+        errorMsg.textContent = t('pleaseEnterTitle');
+        return;
+      }
+
+      let photoUrl = editingTaskId ? undefined : null;
+
+      if (photoFile) {
+        const filePath = currentUser.id + "/" + Date.now() + "_" + photoFile.name;
+        const { error: uploadError } = await supabaseClient
+          .storage
+          .from('task-photos')
+          .upload(filePath, photoFile);
+
+        if (uploadError) {
+          errorMsg.textContent = "Photo upload failed: " + uploadError.message;
+          return;
+        }
+
+        photoUrl = filePath;
+      }
+
+      if (editingTaskId) {
+        const updateFields = {
+          title: title,
+          start_time: startTime || null,
+          end_time: endTime || null,
+          location: location || null,
+          description: description || null,
+          note: note || null,
+          color: color,
+          repeat_type: repeatType,
+          repeat_interval: repeatInterval,
+          repeat_custom_unit: repeatUnit
+        };
+        if (photoUrl !== undefined) updateFields.photo_url = photoUrl;
+
+        const { data, error } = await supabaseClient
+          .from('tasks')
+          .update(updateFields)
+          .eq('id', editingTaskId)
+          .select();
+
+        if (error) {
+          errorMsg.textContent = "Could not save: " + error.message;
+          return;
+        }
+
+        if (data && data[0]) {
+          const list = tasksByDate[selectedDateStr];
+          const idx = list.findIndex(t2 => t2.id === editingTaskId);
+          if (idx !== -1) list[idx] = data[0];
+          const flatIdx = allTasksFlat.findIndex(t2 => t2.id === editingTaskId);
+          if (flatIdx !== -1) allTasksFlat[flatIdx] = data[0];
+          clearForm();
+          renderTaskList();
+          renderCalendar();
+          renderAgenda();
+        }
+      } else {
+        const { data, error } = await supabaseClient
+          .from('tasks')
+          .insert([{
+            user_id: currentUser.id,
+            date: selectedDateStr,
+            title: title,
+            start_time: startTime || null,
+            end_time: endTime || null,
+            location: location || null,
+            description: description || null,
+            note: note || null,
+            photo_url: photoUrl,
+            color: color,
+            repeat_type: repeatType,
+            repeat_interval: repeatInterval,
+            repeat_custom_unit: repeatUnit,
+            completed: false
+          }])
+          .select();
+
+        if (error) {
+          errorMsg.textContent = "Could not save: " + error.message;
+          console.error("Insert error:", error);
+          return;
+        }
+
+        if (data) {
+          if (!tasksByDate[selectedDateStr]) tasksByDate[selectedDateStr] = [];
+          tasksByDate[selectedDateStr].push(data[0]);
+          allTasksFlat.push(data[0]);
+          clearForm();
+          renderTaskList();
+          renderCalendar();
+          renderAgenda();
+        }
+      }
+    }
+
+    async function toggleTask(task) {
+      const { error } = await supabaseClient
+        .from('tasks')
+        .update({ completed: !task.completed })
+        .eq('id', task.id);
+      if (!error) {
+        const wasJustCompleted = !task.completed;
+        task.completed = !task.completed;
+        renderTaskList();
+        renderAgenda();
+        if (wasJustCompleted) {
+          launchConfetti();
+        }
+      }
+    }
+
+    function launchConfetti() {
+      const colors = ['#cd6f01', '#4da6ff', '#e74c3c', '#2ecc71', '#f1c40f', '#9b59b6'];
+      const pieceCount = 80;
+
+      for (let i = 0; i < pieceCount; i++) {
+        const piece = document.createElement('div');
+        const size = Math.random() * 8 + 6;
+        piece.style.position = 'fixed';
+        piece.style.top = '-20px';
+        piece.style.left = Math.random() * 100 + 'vw';
+        piece.style.width = size + 'px';
+        piece.style.height = size + 'px';
+        piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.opacity = '0.9';
+        piece.style.zIndex = '2000';
+        piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        piece.style.pointerEvents = 'none';
+        piece.style.transform = 'rotate(' + (Math.random() * 360) + 'deg)';
+        document.body.appendChild(piece);
+
+        const duration = Math.random() * 1500 + 2000;
+        const drift = (Math.random() - 0.5) * 200;
+
+        piece.animate([
+          { transform: piece.style.transform, top: '-20px', opacity: 0.9 },
+          { transform: 'translateX(' + drift + 'px) rotate(' + (Math.random() * 720) + 'deg)', top: '100vh', opacity: 0.3 }
+        ], {
+          duration: duration,
+          easing: 'ease-in'
+        });
+
+        setTimeout(() => piece.remove(), duration);
+      }
+    }
+
+    let pendingDeleteTask = null;
+
+    function askDeleteConfirm(task) {
+      pendingDeleteTask = task;
+      document.getElementById('confirm-message').textContent = t('deleteConfirmMsg').replace('{title}', task.title);
+      document.getElementById('confirm-overlay').style.display = "flex";
+    }
+
+    function confirmNo() {
+      pendingDeleteTask = null;
+      document.getElementById('confirm-overlay').style.display = "none";
+    }
+
+    async function confirmYes() {
+      const task = pendingDeleteTask;
+      document.getElementById('confirm-overlay').style.display = "none";
+      pendingDeleteTask = null;
+      if (task) await deleteTask(task);
+    }
+
+    async function deleteTask(task) {
+      const { error } = await supabaseClient
+        .from('tasks')
+        .delete()
+        .eq('id', task.id);
+      if (!error) {
+        tasksByDate[selectedDateStr] = tasksByDate[selectedDateStr].filter(t2 => t2.id !== task.id);
+        allTasksFlat = allTasksFlat.filter(t2 => t2.id !== task.id);
+        renderTaskList();
+        renderCalendar();
+        renderAgenda();
+        if (editingTaskId === task.id) clearForm();
+      }
+    }
+
+    function updateClock() {
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = now.getMinutes().toString().padStart(2, '0');
+      const seconds = now.getSeconds().toString().padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      hours = hours.toString().padStart(2, '0');
+      document.getElementById('corner-clock').textContent = `${hours}:${minutes}:${seconds} ${ampm}`;
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    loadSavedTheme();
+    loadSavedTimeFormat();
+    loadSavedLanguage();
+    checkAuth();
+  </script>
+
+</body>
+</html>
