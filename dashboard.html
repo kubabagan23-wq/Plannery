@@ -639,7 +639,7 @@
         }
 
         await supabaseClient.auth.signOut();
-        window.location.href = "homeindex.html";
+        window.location.href = "account-deleted.html";
       } catch (err) {
         msg.style.color = "red";
         msg.textContent = "Could not delete account: " + err.message;
