@@ -145,17 +145,17 @@
   <header>
     <img src="plannery_logo.png">
     <div style="display: flex; gap: 10px;">
-      <a href="login.html"><button class="btn-secondary">Log In</button></a>
-      <a href="signin.html"><button class="btn-primary">Sign In</button></a>
+      <a href="login.html"><button class="btn-secondary i18n-login">Log In</button></a>
+      <a href="createanaccount.html"><button class="btn-primary i18n-create">Create Account</button></a>
     </div>
   </header>
 
-  <h1>All your plans in one place — plan smarter, live better.</h1>
-  <p class="tagline">Get started</p>
+  <h1 id="i18n-h1">All your plans in one place — plan smarter, live better.</h1>
+  <p class="tagline" id="i18n-getstarted">Get started</p>
 
   <div class="btn-row">
-    <a href="login.html"><button class="btn-secondary">Log In</button></a>
-    <a href="signin.html"><button class="btn-primary">Sign In</button></a>
+    <a href="login.html"><button class="btn-secondary i18n-login">Log In</button></a>
+    <a href="createanaccount.html"><button class="btn-primary i18n-create">Create Account</button></a>
   </div>
 
   <br>
@@ -181,30 +181,62 @@
   </script>
 
   <div class="features">
-    <h2>Why Plannery?</h2>
+    <h2 id="i18n-why">Why Plannery?</h2>
     <div class="feature-grid">
       <div class="feature-card">
         <div class="icon">📅</div>
-        <h3>Plan your day</h3>
-        <p>Organize your daily, weekly, and monthly plans in one simple view.</p>
+        <h3 id="i18n-f1t">Plan your day</h3>
+        <p id="i18n-f1d">Organize your daily, weekly, and monthly plans in one simple view.</p>
       </div>
       <div class="feature-card">
         <div class="icon">✅</div>
-        <h3>Track tasks</h3>
-        <p>Check off tasks as you complete them and stay on top of your to-do list.</p>
+        <h3 id="i18n-f2t">Track tasks</h3>
+        <p id="i18n-f2d">Check off tasks as you complete them and stay on top of your to-do list.</p>
       </div>
       <div class="feature-card">
         <div class="icon">📊</div>
-        <h3>See your progress</h3>
-        <p>Track how much you've completed and stay motivated along the way.</p>
+        <h3 id="i18n-f3t">See your progress</h3>
+        <p id="i18n-f3d">Track how much you've completed and stay motivated along the way.</p>
       </div>
     </div>
   </div>
 
   <footer>
-    <p>Need help or found an issue? Email us at <a href="mailto:plannerysupport@gmail.com" style="color: #cd6f01; font-weight: bold;">plannerysupport@gmail.com</a></p>
+    <p><span id="i18n-contact">Need help or found an issue? Email us at</span> <a href="mailto:plannerysupport@gmail.com" style="color: #cd6f01; font-weight: bold;">plannerysupport@gmail.com</a></p>
     <p>&copy; 2026 Plannery. All rights reserved.</p>
   </footer>
 
+
+  <script>
+    const siteTranslations = {
+      en: { logIn: "Log In", createAccount: "Create Account", h1: "All your plans in one place — plan smarter, live better.", getStarted: "Get started", why: "Why Plannery?", f1t: "Plan your day", f1d: "Organize your daily, weekly, and monthly plans in one simple view.", f2t: "Track tasks", f2d: "Check off tasks as you complete them and stay on top of your to-do list.", f3t: "See your progress", f3d: "Track how much you've completed and stay motivated along the way.", contact: "Need help or found an issue? Email us at" },
+      es: { logIn: "Iniciar sesión", createAccount: "Crear cuenta", h1: "Todos tus planes en un solo lugar — planifica mejor, vive mejor.", getStarted: "Comenzar", why: "¿Por qué Plannery?", f1t: "Planifica tu día", f1d: "Organiza tus planes diarios, semanales y mensuales en una vista simple.", f2t: "Rastrea tareas", f2d: "Marca las tareas a medida que las completas.", f3t: "Ve tu progreso", f3d: "Rastrea cuánto has completado y mantente motivado.", contact: "¿Necesitas ayuda? Escríbenos a" },
+      pl: { logIn: "Zaloguj się", createAccount: "Utwórz konto", h1: "Wszystkie Twoje plany w jednym miejscu — planuj mądrzej, żyj lepiej.", getStarted: "Zacznij", why: "Dlaczego Plannery?", f1t: "Zaplanuj swój dzień", f1d: "Organizuj swoje plany dzienne, tygodniowe i miesięczne w jednym widoku.", f2t: "Śledź zadania", f2d: "Odhaczaj zadania w miarę ich wykonywania.", f3t: "Zobacz swoje postępy", f3d: "Śledź, ile już wykonałeś i pozostań zmotywowany.", contact: "Potrzebujesz pomocy? Napisz do nas na" },
+      fr: { logIn: "Se connecter", createAccount: "Créer un compte", h1: "Tous vos plans au même endroit — planifiez mieux, vivez mieux.", getStarted: "Commencer", why: "Pourquoi Plannery ?", f1t: "Planifiez votre journée", f1d: "Organisez vos plans quotidiens, hebdomadaires et mensuels en une vue simple.", f2t: "Suivez vos tâches", f2d: "Cochez les tâches au fur et à mesure.", f3t: "Voyez vos progrès", f3d: "Suivez ce que vous avez accompli et restez motivé.", contact: "Besoin d'aide ? Écrivez-nous à" },
+      zh: { logIn: "登录", createAccount: "创建账户", h1: "所有计划集于一处——更聪明地计划，更好地生活。", getStarted: "开始使用", why: "为什么选择 Plannery？", f1t: "规划你的一天", f1d: "在一个简单的视图中组织你的日、周、月计划。", f2t: "跟踪任务", f2d: "完成任务后勾选，掌控你的待办事项。", f3t: "查看进度", f3d: "跟踪你已完成的内容，保持动力。", contact: "需要帮助？请发邮件至" },
+      pt: { logIn: "Entrar", createAccount: "Criar conta", h1: "Todos os seus planos em um só lugar — planeje melhor, viva melhor.", getStarted: "Começar", why: "Por que Plannery?", f1t: "Planeje seu dia", f1d: "Organize seus planos diários, semanais e mensais em uma visão simples.", f2t: "Acompanhe tarefas", f2d: "Marque as tarefas conforme as completa.", f3t: "Veja seu progresso", f3d: "Acompanhe o quanto você concluiu e mantenha-se motivado.", contact: "Precisa de ajuda? Envie um email para" },
+      de: { logIn: "Anmelden", createAccount: "Konto erstellen", h1: "Alle deine Pläne an einem Ort — plane klüger, lebe besser.", getStarted: "Loslegen", why: "Warum Plannery?", f1t: "Plane deinen Tag", f1d: "Organisiere deine täglichen, wöchentlichen und monatlichen Pläne in einer einfachen Ansicht.", f2t: "Aufgaben verfolgen", f2d: "Hake Aufgaben ab, sobald du sie erledigt hast.", f3t: "Fortschritt sehen", f3d: "Verfolge, wie viel du erledigt hast, und bleib motiviert.", contact: "Brauchst du Hilfe? Schreib uns an" },
+      it: { logIn: "Accedi", createAccount: "Crea account", h1: "Tutti i tuoi piani in un unico posto — pianifica meglio, vivi meglio.", getStarted: "Inizia", why: "Perché Plannery?", f1t: "Pianifica la tua giornata", f1d: "Organizza i tuoi piani giornalieri, settimanali e mensili in una vista semplice.", f2t: "Traccia le attività", f2d: "Spunta le attività man mano che le completi.", f3t: "Visualizza i progressi", f3d: "Traccia quanto hai completato e resta motivato.", contact: "Hai bisogno di aiuto? Scrivici a" },
+      hi: { logIn: "लॉग इन करें", createAccount: "खाता बनाएं", h1: "आपकी सभी योजनाएं एक जगह — बेहतर योजना बनाएं, बेहतर जिएं।", getStarted: "शुरू करें", why: "Plannery क्यों?", f1t: "अपने दिन की योजना बनाएं", f1d: "अपनी दैनिक, साप्ताहिक और मासिक योजनाओं को एक सरल दृश्य में व्यवस्थित करें।", f2t: "कार्यों को ट्रैक करें", f2d: "जैसे ही आप कार्य पूरा करें, उसे चेक करें।", f3t: "अपनी प्रगति देखें", f3d: "आपने कितना पूरा किया है इसे ट्रैक करें और प्रेरित रहें।", contact: "मदद चाहिए? हमें ईमेल करें" }
+    };
+
+    function applySiteLanguage() {
+      const lang = localStorage.getItem('plannery-language') || 'en';
+      const t = siteTranslations[lang] || siteTranslations.en;
+      document.querySelectorAll('.i18n-login').forEach(el => el.textContent = t.logIn);
+      document.querySelectorAll('.i18n-create').forEach(el => el.textContent = t.createAccount);
+      const h1 = document.getElementById('i18n-h1'); if (h1) h1.textContent = t.h1;
+      const gs = document.getElementById('i18n-getstarted'); if (gs) gs.textContent = t.getStarted;
+      const why = document.getElementById('i18n-why'); if (why) why.textContent = t.why;
+      const f1t = document.getElementById('i18n-f1t'); if (f1t) f1t.textContent = t.f1t;
+      const f1d = document.getElementById('i18n-f1d'); if (f1d) f1d.textContent = t.f1d;
+      const f2t = document.getElementById('i18n-f2t'); if (f2t) f2t.textContent = t.f2t;
+      const f2d = document.getElementById('i18n-f2d'); if (f2d) f2d.textContent = t.f2d;
+      const f3t = document.getElementById('i18n-f3t'); if (f3t) f3t.textContent = t.f3t;
+      const f3d = document.getElementById('i18n-f3d'); if (f3d) f3d.textContent = t.f3d;
+      const contact = document.getElementById('i18n-contact'); if (contact) contact.textContent = t.contact;
+    }
+    applySiteLanguage();
+  </script>
 </body>
 </html>
