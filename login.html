@@ -77,12 +77,12 @@
 
   <div class="card">
     <img src="plannery_logo.png" style="width: 180px; height: auto; margin-bottom: 10px;">
-    <h2>Log In</h2>
+    <h2 id="i18n-heading">Log In</h2>
     <input type="email" id="login-email" placeholder="Email">
     <input type="password" id="login-password" placeholder="Password">
-    <button onclick="logIn()">Log In</button>
+    <button onclick="logIn()" id="i18n-btn">Log In</button>
     <p id="login-message" style="color: red; font-size: 14px;"></p>
-    <p style="font-size: 14px;">Don't have an account? <a href="signin.html">Sign up</a></p>
+    <p style="font-size: 14px;"><span id="i18n-noaccount">Don't have an account?</span> <a href="createanaccount.html" id="i18n-signup">Sign up</a></p>
   </div>
 
   <script>
@@ -106,6 +106,32 @@
         window.location.href = "dashboard.html";
       }, 300);
     }
+  </script>
+
+  <script>
+    const loginTranslations = {
+      en: { heading: "Log In", emailPh: "Email", passPh: "Password", btn: "Log In", noAccount: "Don't have an account?", signUp: "Sign up" },
+      es: { heading: "Iniciar sesión", emailPh: "Correo electrónico", passPh: "Contraseña", btn: "Iniciar sesión", noAccount: "¿No tienes una cuenta?", signUp: "Regístrate" },
+      pl: { heading: "Zaloguj się", emailPh: "Email", passPh: "Hasło", btn: "Zaloguj się", noAccount: "Nie masz konta?", signUp: "Zarejestruj się" },
+      fr: { heading: "Se connecter", emailPh: "Email", passPh: "Mot de passe", btn: "Se connecter", noAccount: "Vous n'avez pas de compte ?", signUp: "S'inscrire" },
+      zh: { heading: "登录", emailPh: "邮箱", passPh: "密码", btn: "登录", noAccount: "还没有账户？", signUp: "注册" },
+      pt: { heading: "Entrar", emailPh: "Email", passPh: "Senha", btn: "Entrar", noAccount: "Não tem uma conta?", signUp: "Cadastre-se" },
+      de: { heading: "Anmelden", emailPh: "E-Mail", passPh: "Passwort", btn: "Anmelden", noAccount: "Noch kein Konto?", signUp: "Registrieren" },
+      it: { heading: "Accedi", emailPh: "Email", passPh: "Password", btn: "Accedi", noAccount: "Non hai un account?", signUp: "Registrati" },
+      hi: { heading: "लॉग इन करें", emailPh: "ईमेल", passPh: "पासवर्ड", btn: "लॉग इन करें", noAccount: "खाता नहीं है?", signUp: "साइन अप करें" }
+    };
+
+    function applyLoginLanguage() {
+      const lang = localStorage.getItem('plannery-language') || 'en';
+      const t = loginTranslations[lang] || loginTranslations.en;
+      document.getElementById('i18n-heading').textContent = t.heading;
+      document.getElementById('login-email').placeholder = t.emailPh;
+      document.getElementById('login-password').placeholder = t.passPh;
+      document.getElementById('i18n-btn').textContent = t.btn;
+      document.getElementById('i18n-noaccount').textContent = t.noAccount;
+      document.getElementById('i18n-signup').textContent = t.signUp;
+    }
+    applyLoginLanguage();
   </script>
 
 </body>
