@@ -11,6 +11,18 @@
       transition: opacity 0.15s ease, transform 0.1s ease;
       border: 1px solid rgba(0,0,0,0.15);
     }
+    input[type="text"], input[type="time"], input[type="email"], input[type="password"],
+    input[type="color"], input[type="file"], input[type="number"], textarea, select {
+      background-color: #e8e8e8;
+      color: #000000;
+      border: 1px solid #bbb;
+    }
+    input[type="text"]:focus, input[type="time"]:focus, input[type="email"]:focus,
+    input[type="password"]:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: #cd6f01;
+      background-color: #f0f0f0;
+    }
     button:hover {
       opacity: 0.85;
     }
@@ -188,7 +200,7 @@
   </div>
 
   <div id="settings-overlay" style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 999; overflow-y: auto; box-sizing: border-box;" onclick="closeSettingsOverlay(event)">
-    <div id="settings-panel" style="background: white; color: black; max-width: 360px; margin: 40px auto; padding: 20px; border-radius: 10px; position: relative; box-sizing: border-box;">
+    <div id="settings-panel" style="background-color: inherit; color: inherit; max-width: 360px; margin: 40px auto; padding: 20px; border-radius: 10px; position: relative; box-sizing: border-box; border: 2px solid currentColor;">
       <button onclick="closeSettings()" style="position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; border-radius: 50%; background-color: red; color: white; border: none; font-weight: bold; font-size: 16px; cursor: pointer;">✕</button>
       <h3 id="settings-title"></h3>
 
@@ -269,7 +281,7 @@
   </div>
 
   <div id="delete-account-overlay" style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); z-index: 1001; align-items: center; justify-content: center;">
-    <div style="background: white; color: black; max-width: 360px; width: 90%; padding: 20px; border-radius: 10px; box-sizing: border-box;">
+    <div style="background-color: inherit; color: inherit; max-width: 360px; width: 90%; padding: 20px; border-radius: 10px; box-sizing: border-box; border: 2px solid currentColor;">
       <h3 id="delete-modal-title" style="margin-top: 0; color: #d9534f;"></h3>
       <p id="delete-modal-desc" style="font-size: 13px; color: #555;"></p>
 
@@ -286,7 +298,7 @@
   </div>
 
   <div id="confirm-overlay" style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
-    <div style="background: white; color: black; max-width: 320px; width: 90%; padding: 20px; border-radius: 10px; text-align: center;">
+    <div style="background-color: inherit; color: inherit; max-width: 320px; width: 90%; padding: 20px; border-radius: 10px; text-align: center; border: 2px solid currentColor;">
       <h3 id="confirm-title" style="margin-top: 0;"></h3>
       <p id="confirm-message" style="font-size: 14px;"></p>
       <div style="display: flex; gap: 10px; margin-top: 15px;">
@@ -322,7 +334,7 @@
         notificationsOffDesc: "Get a reminder in your browser 15 minutes before a task starts.",
         notificationsOnDesc: "You'll get reminders 15 minutes before tasks start.",
         notificationsBlockedDesc: "Notifications are blocked for this site. To fix it: click the icon next to your browser's address bar, switch Notifications to Allow, then refresh this page.",
-        timeFormat: "Time Format", hour24: "24-hour (e.g. 16:45)", hour12: "12-hour (e.g. 4:45 PM)",
+        timeFormat: "Time Format", hour24: "24-hour", hour12: "12-hour",
         changeEmail: "Change Email", save: "Save"
       },
       es: {
@@ -535,6 +547,33 @@
     let editingTaskId = null;
     let agendaDate = new Date();
     let currentTheme = 'light';
+
+    function getThemeColors(theme) {
+      const map = {
+        light:  { weekday: "#f7f7f7", weekend: "#eae6df", text: "#000000" },
+        dark:   { weekday: "#2b2b2b", weekend: "#1a1a1a", text: "#ffffff" },
+        blue:   { weekday: "#1f2733", weekend: "#141b24", text: "#4da6ff" },
+        orange: { weekday: "#2b2118", weekend: "#1c150f", text: "#cd6f01" }
+      };
+      return map[theme] || map.light;
+    }
+
+    const brandButtonIds = ["save-task-btn", "save-username-btn", "save-password-btn", "save-email-btn", "confirm-delete-btn", "delete-modal-confirm-btn"];
+
+    function styleControlsForTheme(theme) {
+      const colors = getThemeColors(theme);
+
+      document.querySelectorAll('select').forEach(sel => {
+        sel.style.backgroundColor = (theme === 'light') ? "#e8e8e8" : colors.weekend;
+        sel.style.color = (theme === 'light') ? "#000000" : colors.text;
+      });
+
+      document.querySelectorAll('button').forEach(btn => {
+        if (brandButtonIds.includes(btn.id)) return;
+        btn.style.backgroundColor = (theme === 'light') ? "" : colors.weekend;
+        btn.style.color = (theme === 'light') ? "" : colors.text;
+      });
+    }
 
     async function checkAuth() {
       const { data } = await supabaseClient.auth.getSession();
@@ -968,6 +1007,8 @@
       }
       localStorage.setItem('plannery-theme', theme);
       if (typeof renderCalendar === 'function' && allTasksFlat) renderCalendar();
+      styleControlsForTheme(theme);
+      if (selectedDateStr) renderTaskList();
     }
 
     // ---- Time format (12h / 24h) ----
@@ -1412,6 +1453,7 @@
 
         listDiv.appendChild(row);
       }
+      styleControlsForTheme(currentTheme);
     }
 
     async function saveTask() {
@@ -1629,6 +1671,7 @@
     setInterval(updateClock, 1000);
 
     loadSavedTheme();
+    styleControlsForTheme(currentTheme);
     loadSavedTimeFormat();
     loadSavedLanguage();
     checkAuth();
