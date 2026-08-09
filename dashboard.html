@@ -125,12 +125,12 @@
 
     <div class="sidebar-box" style="width: 280px; flex-shrink: 0; border: 2px solid currentColor; border-radius: 10px; padding: 15px; box-sizing: border-box;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <button onclick="agendaShift(-1)" style="width: 30px; height: 30px; border-radius: 6px; font-weight: bold;">←</button>
+        <button id="agenda-prev-btn" onclick="agendaShift(-1)" style="width: 30px; height: 30px; border-radius: 6px; font-weight: bold;">←</button>
         <div style="text-align: center;">
           <div id="agenda-date-label" style="font-weight: bold; font-size: 14px;"></div>
           <div id="agenda-today-tag" style="font-size: 11px; color: #cd6f01; font-weight: bold;"></div>
         </div>
-        <button onclick="agendaShift(1)" style="width: 30px; height: 30px; border-radius: 6px; font-weight: bold;">→</button>
+        <button id="agenda-next-btn" onclick="agendaShift(1)" style="width: 30px; height: 30px; border-radius: 6px; font-weight: bold;">→</button>
       </div>
       <button onclick="agendaResetToday()" id="back-to-today-btn" style="width: 100%; height: 28px; font-size: 12px; border-radius: 6px; margin-bottom: 10px;"></button>
       <div id="agenda-list"></div>
@@ -335,7 +335,15 @@
         notificationsOnDesc: "You'll get reminders 15 minutes before tasks start.",
         notificationsBlockedDesc: "Notifications are blocked for this site. To fix it: click the icon next to your browser's address bar, switch Notifications to Allow, then refresh this page.",
         timeFormat: "Time Format", hour24: "24-hour", hour12: "12-hour",
-        changeEmail: "Change Email", save: "Save"
+        changeEmail: "Change Email", save: "Save",
+        repeat: "Repeat", repeatNone: "Does not repeat", repeatDaily: "Every day", repeatWeekly: "Every week",
+        repeatMonthly: "Every month", repeatYearly: "Every year", repeatCustom: "Custom...",
+        every: "Every", unitDays: "Days", unitWeeks: "Weeks", unitMonths: "Months", unitYears: "Years",
+        importCalBtn: "📥 Import from Apple/Google Calendar",
+        importCalDesc: "Export your calendar as a .ics file from Apple Calendar or Google Calendar, then upload it here.",
+        deleteModalTitle: "Permanently Delete Account",
+        deleteModalDesc: "This will permanently delete your account, all your tasks, and all your photos. This cannot be undone. To confirm, enter your email and password.",
+        deleteModalConfirmBtn: "Permanently Delete", deleteModalCancelBtn: "Cancel"
       },
       es: {
         settings: "Configuración", theme: "Tema", language: "Idioma", logOut: "Cerrar sesión",
@@ -349,7 +357,23 @@
         descPlaceholder: "De qué trata este evento/tarea...", notePlaceholder: "Notas adicionales...",
         edit: "Editar", done: "Hecho", undo: "Deshacer", deleteBtn: "Eliminar",
         areYouSure: "¿Estás seguro?", deleteConfirmMsg: '¿Eliminar "{title}"? Esto no se puede deshacer.',
-        cancel: "Cancelar", pleaseEnterTitle: "Por favor ingresa un título."
+        cancel: "Cancelar", pleaseEnterTitle: "Por favor ingresa un título.",
+        enableNotifications: "🔔 Activar notificaciones", notificationsOn: "🔔 Notificaciones activadas",
+        notificationsBlocked: "🔕 Notificaciones bloqueadas", notificationsUnsupported: "Notificaciones no compatibles",
+        notificationsOffDesc: "Recibe un recordatorio en tu navegador 15 minutos antes de que comience una tarea.",
+        notificationsOnDesc: "Recibirás recordatorios 15 minutos antes de que comiencen las tareas.",
+        notificationsBlockedDesc: "Las notificaciones están bloqueadas para este sitio. Para solucionarlo: haz clic en el icono junto a la barra de direcciones, permite las notificaciones y actualiza la página.",
+        repeat: "Repetir", repeatNone: "No se repite", repeatDaily: "Cada día", repeatWeekly: "Cada semana",
+        repeatMonthly: "Cada mes", repeatYearly: "Cada año", repeatCustom: "Personalizado...",
+        every: "Cada", unitDays: "Días", unitWeeks: "Semanas", unitMonths: "Meses", unitYears: "Años",
+        importCalBtn: "📥 Importar de Apple/Google Calendar",
+        importCalDesc: "Exporta tu calendario como un archivo .ics desde Apple Calendar o Google Calendar y súbelo aquí.",
+        deleteModalTitle: "Eliminar cuenta permanentemente",
+        deleteModalDesc: "Esto eliminará permanentemente tu cuenta, todas tus tareas y todas tus fotos. Esto no se puede deshacer. Para confirmar, ingresa tu correo y contraseña.",
+        deleteModalConfirmBtn: "Eliminar permanentemente", deleteModalCancelBtn: "Cancelar",
+        account: "Cuenta", changeUsername: "Cambiar nombre de usuario", changePassword: "Cambiar contraseña",
+        changeEmail: "Cambiar correo", save: "Guardar",
+        timeFormat: "Formato de hora", hour24: "24 horas", hour12: "12 horas"
       },
       pl: {
         settings: "Ustawienia", theme: "Motyw", language: "Język", logOut: "Wyloguj się",
@@ -363,7 +387,23 @@
         descPlaceholder: "Czego dotyczy to wydarzenie/zadanie...", notePlaceholder: "Dodatkowe notatki...",
         edit: "Edytuj", done: "Zrobione", undo: "Cofnij", deleteBtn: "Usuń",
         areYouSure: "Czy na pewno?", deleteConfirmMsg: 'Usunąć "{title}"? Tej czynności nie można cofnąć.',
-        cancel: "Anuluj", pleaseEnterTitle: "Proszę wprowadzić tytuł."
+        cancel: "Anuluj", pleaseEnterTitle: "Proszę wprowadzić tytuł.",
+        enableNotifications: "🔔 Włącz powiadomienia", notificationsOn: "🔔 Powiadomienia włączone",
+        notificationsBlocked: "🔕 Powiadomienia zablokowane", notificationsUnsupported: "Powiadomienia nieobsługiwane",
+        notificationsOffDesc: "Otrzymuj przypomnienie w przeglądarce 15 minut przed rozpoczęciem zadania.",
+        notificationsOnDesc: "Otrzymasz przypomnienia 15 minut przed rozpoczęciem zadań.",
+        notificationsBlockedDesc: "Powiadomienia są zablokowane dla tej strony. Aby to naprawić: kliknij ikonę obok paska adresu, zezwól na powiadomienia i odśwież stronę.",
+        repeat: "Powtarzaj", repeatNone: "Nie powtarza się", repeatDaily: "Codziennie", repeatWeekly: "Co tydzień",
+        repeatMonthly: "Co miesiąc", repeatYearly: "Co rok", repeatCustom: "Niestandardowe...",
+        every: "Co", unitDays: "Dni", unitWeeks: "Tygodnie", unitMonths: "Miesiące", unitYears: "Lata",
+        importCalBtn: "📥 Importuj z Apple/Google Calendar",
+        importCalDesc: "Wyeksportuj swój kalendarz jako plik .ics z Apple Calendar lub Google Calendar, a następnie prześlij go tutaj.",
+        deleteModalTitle: "Trwale usuń konto",
+        deleteModalDesc: "To trwale usunie Twoje konto, wszystkie zadania i wszystkie zdjęcia. Tej czynności nie można cofnąć. Aby potwierdzić, wpisz swój email i hasło.",
+        deleteModalConfirmBtn: "Trwale usuń", deleteModalCancelBtn: "Anuluj",
+        account: "Konto", changeUsername: "Zmień nazwę użytkownika", changePassword: "Zmień hasło",
+        changeEmail: "Zmień email", save: "Zapisz",
+        timeFormat: "Format czasu", hour24: "24-godzinny", hour12: "12-godzinny"
       },
       fr: {
         settings: "Paramètres", theme: "Thème", language: "Langue", logOut: "Se déconnecter",
@@ -377,7 +417,23 @@
         descPlaceholder: "De quoi s'agit-il...", notePlaceholder: "Notes supplémentaires...",
         edit: "Modifier", done: "Terminé", undo: "Annuler", deleteBtn: "Supprimer",
         areYouSure: "Êtes-vous sûr ?", deleteConfirmMsg: 'Supprimer "{title}" ? Cette action est irréversible.',
-        cancel: "Annuler", pleaseEnterTitle: "Veuillez saisir un titre."
+        cancel: "Annuler", pleaseEnterTitle: "Veuillez saisir un titre.",
+        enableNotifications: "🔔 Activer les notifications", notificationsOn: "🔔 Notifications activées",
+        notificationsBlocked: "🔕 Notifications bloquées", notificationsUnsupported: "Notifications non prises en charge",
+        notificationsOffDesc: "Recevez un rappel dans votre navigateur 15 minutes avant le début d'une tâche.",
+        notificationsOnDesc: "Vous recevrez des rappels 15 minutes avant le début des tâches.",
+        notificationsBlockedDesc: "Les notifications sont bloquées pour ce site. Pour résoudre: cliquez sur l'icône à côté de la barre d'adresse, autorisez les notifications, puis actualisez la page.",
+        repeat: "Répéter", repeatNone: "Ne se répète pas", repeatDaily: "Tous les jours", repeatWeekly: "Toutes les semaines",
+        repeatMonthly: "Tous les mois", repeatYearly: "Tous les ans", repeatCustom: "Personnalisé...",
+        every: "Tous les", unitDays: "Jours", unitWeeks: "Semaines", unitMonths: "Mois", unitYears: "Ans",
+        importCalBtn: "📥 Importer depuis Apple/Google Calendar",
+        importCalDesc: "Exportez votre calendrier au format .ics depuis Apple Calendar ou Google Calendar, puis téléchargez-le ici.",
+        deleteModalTitle: "Supprimer définitivement le compte",
+        deleteModalDesc: "Cela supprimera définitivement votre compte, toutes vos tâches et toutes vos photos. Cette action est irréversible. Pour confirmer, saisissez votre email et mot de passe.",
+        deleteModalConfirmBtn: "Supprimer définitivement", deleteModalCancelBtn: "Annuler",
+        account: "Compte", changeUsername: "Changer le nom d'utilisateur", changePassword: "Changer le mot de passe",
+        changeEmail: "Changer l'email", save: "Enregistrer",
+        timeFormat: "Format de l'heure", hour24: "24 heures", hour12: "12 heures"
       },
       zh: {
         settings: "设置", theme: "主题", language: "语言", logOut: "退出登录",
@@ -391,7 +447,23 @@
         descPlaceholder: "这个事件/任务是关于什么的...", notePlaceholder: "其他备注...",
         edit: "编辑", done: "完成", undo: "撤销", deleteBtn: "删除",
         areYouSure: "您确定吗？", deleteConfirmMsg: '删除"{title}"？此操作无法撤销。',
-        cancel: "取消", pleaseEnterTitle: "请输入标题。"
+        cancel: "取消", pleaseEnterTitle: "请输入标题。",
+        enableNotifications: "🔔 启用通知", notificationsOn: "🔔 通知已开启",
+        notificationsBlocked: "🔕 通知已被屏蔽", notificationsUnsupported: "不支持通知",
+        notificationsOffDesc: "在任务开始前15分钟通过浏览器收到提醒。",
+        notificationsOnDesc: "您将在任务开始前15分钟收到提醒。",
+        notificationsBlockedDesc: "此网站的通知已被屏蔽。修复方法：点击地址栏旁边的图标，允许通知，然后刷新页面。",
+        repeat: "重复", repeatNone: "不重复", repeatDaily: "每天", repeatWeekly: "每周",
+        repeatMonthly: "每月", repeatYearly: "每年", repeatCustom: "自定义...",
+        every: "每", unitDays: "天", unitWeeks: "周", unitMonths: "月", unitYears: "年",
+        importCalBtn: "📥 从苹果/谷歌日历导入",
+        importCalDesc: "从苹果日历或谷歌日历导出为 .ics 文件，然后在此上传。",
+        deleteModalTitle: "永久删除账户",
+        deleteModalDesc: "这将永久删除您的账户、所有任务和所有照片。此操作无法撤销。请输入您的邮箱和密码进行确认。",
+        deleteModalConfirmBtn: "永久删除", deleteModalCancelBtn: "取消",
+        account: "账户", changeUsername: "更改用户名", changePassword: "更改密码",
+        changeEmail: "更改邮箱", save: "保存",
+        timeFormat: "时间格式", hour24: "24小时制", hour12: "12小时制"
       },
       pt: {
         settings: "Configurações", theme: "Tema", language: "Idioma", logOut: "Sair",
@@ -405,7 +477,23 @@
         descPlaceholder: "Sobre o que é este evento/tarefa...", notePlaceholder: "Notas adicionais...",
         edit: "Editar", done: "Concluído", undo: "Desfazer", deleteBtn: "Excluir",
         areYouSure: "Tem certeza?", deleteConfirmMsg: 'Excluir "{title}"? Isso não pode ser desfeito.',
-        cancel: "Cancelar", pleaseEnterTitle: "Por favor, insira um título."
+        cancel: "Cancelar", pleaseEnterTitle: "Por favor, insira um título.",
+        enableNotifications: "🔔 Ativar notificações", notificationsOn: "🔔 Notificações ativadas",
+        notificationsBlocked: "🔕 Notificações bloqueadas", notificationsUnsupported: "Notificações não suportadas",
+        notificationsOffDesc: "Receba um lembrete no navegador 15 minutos antes de uma tarefa começar.",
+        notificationsOnDesc: "Você receberá lembretes 15 minutos antes das tarefas começarem.",
+        notificationsBlockedDesc: "As notificações estão bloqueadas para este site. Para corrigir: clique no ícone ao lado da barra de endereço, permita notificações e atualize a página.",
+        repeat: "Repetir", repeatNone: "Não se repete", repeatDaily: "Todo dia", repeatWeekly: "Toda semana",
+        repeatMonthly: "Todo mês", repeatYearly: "Todo ano", repeatCustom: "Personalizado...",
+        every: "A cada", unitDays: "Dias", unitWeeks: "Semanas", unitMonths: "Meses", unitYears: "Anos",
+        importCalBtn: "📥 Importar do Apple/Google Calendar",
+        importCalDesc: "Exporte seu calendário como um arquivo .ics do Apple Calendar ou Google Calendar e envie aqui.",
+        deleteModalTitle: "Excluir conta permanentemente",
+        deleteModalDesc: "Isso excluirá permanentemente sua conta, todas as suas tarefas e todas as suas fotos. Isso não pode ser desfeito. Para confirmar, insira seu email e senha.",
+        deleteModalConfirmBtn: "Excluir permanentemente", deleteModalCancelBtn: "Cancelar",
+        account: "Conta", changeUsername: "Alterar nome de usuário", changePassword: "Alterar senha",
+        changeEmail: "Alterar email", save: "Salvar",
+        timeFormat: "Formato de hora", hour24: "24 horas", hour12: "12 horas"
       },
       de: {
         settings: "Einstellungen", theme: "Design", language: "Sprache", logOut: "Abmelden",
@@ -419,7 +507,23 @@
         descPlaceholder: "Worum geht es bei diesem Termin/dieser Aufgabe...", notePlaceholder: "Zusätzliche Notizen...",
         edit: "Bearbeiten", done: "Erledigt", undo: "Rückgängig", deleteBtn: "Löschen",
         areYouSure: "Bist du sicher?", deleteConfirmMsg: '"{title}" löschen? Dies kann nicht rückgängig gemacht werden.',
-        cancel: "Abbrechen", pleaseEnterTitle: "Bitte gib einen Titel ein."
+        cancel: "Abbrechen", pleaseEnterTitle: "Bitte gib einen Titel ein.",
+        enableNotifications: "🔔 Benachrichtigungen aktivieren", notificationsOn: "🔔 Benachrichtigungen an",
+        notificationsBlocked: "🔕 Benachrichtigungen blockiert", notificationsUnsupported: "Benachrichtigungen nicht unterstützt",
+        notificationsOffDesc: "Erhalte 15 Minuten vor Beginn einer Aufgabe eine Erinnerung im Browser.",
+        notificationsOnDesc: "Du erhältst Erinnerungen 15 Minuten vor Beginn der Aufgaben.",
+        notificationsBlockedDesc: "Benachrichtigungen sind für diese Seite blockiert. So behebst du es: Klicke auf das Symbol neben der Adressleiste, erlaube Benachrichtigungen und aktualisiere die Seite.",
+        repeat: "Wiederholen", repeatNone: "Wiederholt sich nicht", repeatDaily: "Täglich", repeatWeekly: "Wöchentlich",
+        repeatMonthly: "Monatlich", repeatYearly: "Jährlich", repeatCustom: "Benutzerdefiniert...",
+        every: "Alle", unitDays: "Tage", unitWeeks: "Wochen", unitMonths: "Monate", unitYears: "Jahre",
+        importCalBtn: "📥 Von Apple/Google Kalender importieren",
+        importCalDesc: "Exportiere deinen Kalender als .ics-Datei aus Apple Kalender oder Google Kalender und lade sie hier hoch.",
+        deleteModalTitle: "Konto endgültig löschen",
+        deleteModalDesc: "Dies löscht dein Konto, alle Aufgaben und alle Fotos endgültig. Dies kann nicht rückgängig gemacht werden. Gib zur Bestätigung deine E-Mail und dein Passwort ein.",
+        deleteModalConfirmBtn: "Endgültig löschen", deleteModalCancelBtn: "Abbrechen",
+        account: "Konto", changeUsername: "Benutzername ändern", changePassword: "Passwort ändern",
+        changeEmail: "E-Mail ändern", save: "Speichern",
+        timeFormat: "Zeitformat", hour24: "24-Stunden", hour12: "12-Stunden"
       },
       it: {
         settings: "Impostazioni", theme: "Tema", language: "Lingua", logOut: "Esci",
@@ -433,7 +537,23 @@
         descPlaceholder: "Di cosa tratta questo evento/attività...", notePlaceholder: "Note aggiuntive...",
         edit: "Modifica", done: "Fatto", undo: "Annulla", deleteBtn: "Elimina",
         areYouSure: "Sei sicuro?", deleteConfirmMsg: 'Eliminare "{title}"? Questa azione non può essere annullata.',
-        cancel: "Annulla", pleaseEnterTitle: "Inserisci un titolo."
+        cancel: "Annulla", pleaseEnterTitle: "Inserisci un titolo.",
+        enableNotifications: "🔔 Attiva notifiche", notificationsOn: "🔔 Notifiche attive",
+        notificationsBlocked: "🔕 Notifiche bloccate", notificationsUnsupported: "Notifiche non supportate",
+        notificationsOffDesc: "Ricevi un promemoria nel browser 15 minuti prima dell'inizio di un'attività.",
+        notificationsOnDesc: "Riceverai promemoria 15 minuti prima dell'inizio delle attività.",
+        notificationsBlockedDesc: "Le notifiche sono bloccate per questo sito. Per risolvere: clicca sull'icona accanto alla barra degli indirizzi, consenti le notifiche e aggiorna la pagina.",
+        repeat: "Ripeti", repeatNone: "Non si ripete", repeatDaily: "Ogni giorno", repeatWeekly: "Ogni settimana",
+        repeatMonthly: "Ogni mese", repeatYearly: "Ogni anno", repeatCustom: "Personalizzato...",
+        every: "Ogni", unitDays: "Giorni", unitWeeks: "Settimane", unitMonths: "Mesi", unitYears: "Anni",
+        importCalBtn: "📥 Importa da Apple/Google Calendar",
+        importCalDesc: "Esporta il tuo calendario come file .ics da Apple Calendar o Google Calendar, quindi caricalo qui.",
+        deleteModalTitle: "Elimina account definitivamente",
+        deleteModalDesc: "Questo eliminerà definitivamente il tuo account, tutte le tue attività e tutte le tue foto. Questa azione non può essere annullata. Per confermare, inserisci email e password.",
+        deleteModalConfirmBtn: "Elimina definitivamente", deleteModalCancelBtn: "Annulla",
+        account: "Account", changeUsername: "Cambia nome utente", changePassword: "Cambia password",
+        changeEmail: "Cambia email", save: "Salva",
+        timeFormat: "Formato ora", hour24: "24 ore", hour12: "12 ore"
       },
       hi: {
         settings: "सेटिंग्स", theme: "थीम", language: "भाषा", logOut: "लॉग आउट",
@@ -447,7 +567,23 @@
         descPlaceholder: "यह इवेंट/कार्य किस बारे में है...", notePlaceholder: "कोई अतिरिक्त नोट्स...",
         edit: "संपादित करें", done: "पूर्ण", undo: "पूर्ववत करें", deleteBtn: "हटाएं",
         areYouSure: "क्या आप निश्चित हैं?", deleteConfirmMsg: '"{title}" हटाएं? इसे पूर्ववत नहीं किया जा सकता।',
-        cancel: "रद्द करें", pleaseEnterTitle: "कृपया एक शीर्षक दर्ज करें।"
+        cancel: "रद्द करें", pleaseEnterTitle: "कृपया एक शीर्षक दर्ज करें।",
+        enableNotifications: "🔔 सूचनाएं सक्षम करें", notificationsOn: "🔔 सूचनाएं चालू हैं",
+        notificationsBlocked: "🔕 सूचनाएं अवरुद्ध हैं", notificationsUnsupported: "सूचनाएं समर्थित नहीं हैं",
+        notificationsOffDesc: "कार्य शुरू होने से 15 मिनट पहले अपने ब्राउज़र में अनुस्मारक प्राप्त करें।",
+        notificationsOnDesc: "आपको कार्य शुरू होने से 15 मिनट पहले अनुस्मारक मिलेंगे।",
+        notificationsBlockedDesc: "इस साइट के लिए सूचनाएं अवरुद्ध हैं। ठीक करने के लिए: एड्रेस बार के पास आइकन पर क्लिक करें, सूचनाओं की अनुमति दें, फिर पेज को रीफ्रेश करें।",
+        repeat: "दोहराएं", repeatNone: "दोहराता नहीं", repeatDaily: "हर दिन", repeatWeekly: "हर सप्ताह",
+        repeatMonthly: "हर महीने", repeatYearly: "हर साल", repeatCustom: "कस्टम...",
+        every: "हर", unitDays: "दिन", unitWeeks: "सप्ताह", unitMonths: "महीने", unitYears: "साल",
+        importCalBtn: "📥 Apple/Google कैलेंडर से आयात करें",
+        importCalDesc: "Apple कैलेंडर या Google कैलेंडर से अपना कैलेंडर .ics फ़ाइल के रूप में निर्यात करें, फिर इसे यहां अपलोड करें।",
+        deleteModalTitle: "खाता स्थायी रूप से हटाएं",
+        deleteModalDesc: "इससे आपका खाता, आपके सभी कार्य और सभी फ़ोटो स्थायी रूप से हट जाएंगे। इसे पूर्ववत नहीं किया जा सकता। पुष्टि के लिए अपना ईमेल और पासवर्ड दर्ज करें।",
+        deleteModalConfirmBtn: "स्थायी रूप से हटाएं", deleteModalCancelBtn: "रद्द करें",
+        account: "खाता", changeUsername: "उपयोगकर्ता नाम बदलें", changePassword: "पासवर्ड बदलें",
+        changeEmail: "ईमेल बदलें", save: "सहेजें",
+        timeFormat: "समय प्रारूप", hour24: "24-घंटे", hour12: "12-घंटे"
       }
     };
 
@@ -488,6 +624,27 @@
       document.getElementById('settings-title').textContent = t('settings');
       updateNotificationsUI();
       document.getElementById('label-account').textContent = t('account');
+
+      document.getElementById('label-repeat').textContent = t('repeat');
+      document.getElementById('opt-repeat-none').textContent = t('repeatNone');
+      document.getElementById('opt-repeat-daily').textContent = t('repeatDaily');
+      document.getElementById('opt-repeat-weekly').textContent = t('repeatWeekly');
+      document.getElementById('opt-repeat-monthly').textContent = t('repeatMonthly');
+      document.getElementById('opt-repeat-yearly').textContent = t('repeatYearly');
+      document.getElementById('opt-repeat-custom').textContent = t('repeatCustom');
+      document.getElementById('label-every').textContent = t('every');
+      document.getElementById('opt-unit-days').textContent = t('unitDays');
+      document.getElementById('opt-unit-weeks').textContent = t('unitWeeks');
+      document.getElementById('opt-unit-months').textContent = t('unitMonths');
+      document.getElementById('opt-unit-years').textContent = t('unitYears');
+
+      document.getElementById('import-cal-btn').textContent = t('importCalBtn');
+      document.getElementById('import-cal-desc').textContent = t('importCalDesc');
+
+      document.getElementById('delete-modal-title').textContent = t('deleteModalTitle');
+      document.getElementById('delete-modal-desc').textContent = t('deleteModalDesc');
+      document.getElementById('delete-modal-confirm-btn').textContent = t('deleteModalConfirmBtn');
+      document.getElementById('delete-modal-cancel-btn').textContent = t('deleteModalCancelBtn');
       document.getElementById('username-toggle-btn').textContent = t('changeUsername');
       document.getElementById('password-toggle-btn').textContent = t('changePassword');
       document.getElementById('email-toggle-btn').textContent = t('changeEmail');
@@ -558,20 +715,39 @@
       return map[theme] || map.light;
     }
 
-    const brandButtonIds = ["save-task-btn", "save-username-btn", "save-password-btn", "save-email-btn", "confirm-delete-btn", "delete-modal-confirm-btn"];
+    const brandButtonIds = ["save-task-btn", "save-username-btn", "save-password-btn", "save-email-btn", "confirm-delete-btn", "delete-modal-confirm-btn", "agenda-prev-btn", "agenda-next-btn"];
+
+    function lightenColor(hex, percent) {
+      const num = parseInt(hex.replace("#",""), 16);
+      let r = (num >> 16) + Math.round(255 * percent);
+      let g = ((num >> 8) & 0x00FF) + Math.round(255 * percent);
+      let b = (num & 0x0000FF) + Math.round(255 * percent);
+      r = Math.min(255, r); g = Math.min(255, g); b = Math.min(255, b);
+      return "#" + (0x1000000 + r*0x10000 + g*0x100 + b).toString(16).slice(1);
+    }
 
     function styleControlsForTheme(theme) {
       const colors = getThemeColors(theme);
 
-      document.querySelectorAll('select').forEach(sel => {
-        sel.style.backgroundColor = (theme === 'light') ? "#e8e8e8" : colors.weekend;
-        sel.style.color = (theme === 'light') ? "#000000" : colors.text;
+      document.querySelectorAll('select, input[type="text"], input[type="time"], input[type="email"], input[type="password"], input[type="number"], input[type="file"], textarea').forEach(el => {
+        el.style.backgroundColor = (theme === 'light') ? "#e8e8e8" : colors.weekend;
+        el.style.color = (theme === 'light') ? "#000000" : colors.text;
       });
 
       document.querySelectorAll('button').forEach(btn => {
         if (brandButtonIds.includes(btn.id)) return;
         btn.style.backgroundColor = (theme === 'light') ? "" : colors.weekend;
         btn.style.color = (theme === 'light') ? "" : colors.text;
+      });
+
+      const arrowBg = (theme === 'light') ? "" : lightenColor(colors.weekday, 0.08);
+      const arrowIds = ["agenda-prev-btn", "agenda-next-btn"];
+      arrowIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.style.backgroundColor = arrowBg;
+          el.style.color = (theme === 'light') ? "" : colors.text;
+        }
       });
     }
 
