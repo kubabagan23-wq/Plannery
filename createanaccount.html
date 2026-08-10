@@ -83,13 +83,26 @@
 </head>
 <body>
 
+
+  <select id="lang-switcher" onchange="localStorage.setItem('plannery-language', this.value); applySignupLanguage();" style="position: fixed; top: 15px; right: 15px; padding: 8px; border-radius: 8px; border: 1px solid #ddd; font-size: 13px; background-color: white;">
+    <option value="en">🌐 English</option>
+    <option value="es">🌐 Español</option>
+    <option value="pl">🌐 Polski</option>
+    <option value="fr">🌐 Français</option>
+    <option value="zh">🌐 中文</option>
+    <option value="pt">🌐 Português</option>
+    <option value="de">🌐 Deutsch</option>
+    <option value="it">🌐 Italiano</option>
+    <option value="hi">🌐 हिन्दी</option>
+  </select>
+
   <div class="card">
     <img src="plannery_logo.png" style="width: 180px; height: auto; margin-bottom: 10px;">
-    <h2>Sign Up</h2>
+    <h2 id="i18n-heading">Sign Up</h2>
     <input type="text" id="signup-username" placeholder="Username" autocomplete="off">
     <input type="email" id="signup-email" placeholder="Email">
     <input type="password" id="signup-password" placeholder="Password">
-    <button onclick="signUp()">Sign Up</button>
+    <button onclick="signUp()" id="i18n-btn">Sign Up</button>
     <p id="signup-message" style="color: red; font-size: 14px;"></p>
 
     <div id="notif-prompt" style="display:none; margin-top: 15px; padding: 15px; border: 2px solid #cd6f01; border-radius: 10px; text-align: left;">
@@ -101,7 +114,7 @@
       </div>
     </div>
 
-    <p style="font-size: 14px;">Already have an account? <a href="login.html">Log in</a></p>
+    <p style="font-size: 14px;"><span id="i18n-haveaccount">Already have an account?</span> <a href="login.html" id="i18n-login">Log in</a></p>
   </div>
 
   <script>
@@ -166,6 +179,34 @@
         document.getElementById('notif-prompt').style.display = "block";
       }
     }
+  </script>
+
+  <script>
+    const signupTranslations = {
+      en: { heading: "Sign Up", usernamePh: "Username", emailPh: "Email", passPh: "Password", btn: "Sign Up", haveAccount: "Already have an account?", logIn: "Log in" },
+      es: { heading: "Crear cuenta", usernamePh: "Nombre de usuario", emailPh: "Correo electrónico", passPh: "Contraseña", btn: "Crear cuenta", haveAccount: "¿Ya tienes una cuenta?", logIn: "Inicia sesión" },
+      pl: { heading: "Utwórz konto", usernamePh: "Nazwa użytkownika", emailPh: "Email", passPh: "Hasło", btn: "Utwórz konto", haveAccount: "Masz już konto?", logIn: "Zaloguj się" },
+      fr: { heading: "Créer un compte", usernamePh: "Nom d'utilisateur", emailPh: "Email", passPh: "Mot de passe", btn: "Créer un compte", haveAccount: "Vous avez déjà un compte ?", logIn: "Se connecter" },
+      zh: { heading: "创建账户", usernamePh: "用户名", emailPh: "邮箱", passPh: "密码", btn: "创建账户", haveAccount: "已有账户？", logIn: "登录" },
+      pt: { heading: "Criar conta", usernamePh: "Nome de usuário", emailPh: "Email", passPh: "Senha", btn: "Criar conta", haveAccount: "Já tem uma conta?", logIn: "Entrar" },
+      de: { heading: "Konto erstellen", usernamePh: "Benutzername", emailPh: "E-Mail", passPh: "Passwort", btn: "Konto erstellen", haveAccount: "Schon ein Konto?", logIn: "Anmelden" },
+      it: { heading: "Crea account", usernamePh: "Nome utente", emailPh: "Email", passPh: "Password", btn: "Crea account", haveAccount: "Hai già un account?", logIn: "Accedi" },
+      hi: { heading: "खाता बनाएं", usernamePh: "उपयोगकर्ता नाम", emailPh: "ईमेल", passPh: "पासवर्ड", btn: "खाता बनाएं", haveAccount: "पहले से खाता है?", logIn: "लॉग इन करें" }
+    };
+
+    function applySignupLanguage() {
+      const lang = localStorage.getItem('plannery-language') || 'en';
+      const t = signupTranslations[lang] || signupTranslations.en;
+      document.getElementById('i18n-heading').textContent = t.heading;
+      document.getElementById('signup-username').placeholder = t.usernamePh;
+      document.getElementById('signup-email').placeholder = t.emailPh;
+      document.getElementById('signup-password').placeholder = t.passPh;
+      document.getElementById('i18n-btn').textContent = t.btn;
+      document.getElementById('i18n-haveaccount').textContent = t.haveAccount;
+      document.getElementById('i18n-login').textContent = t.logIn;
+    }
+    document.getElementById('lang-switcher').value = localStorage.getItem('plannery-language') || 'en';
+    applySignupLanguage();
   </script>
 
 </body>
