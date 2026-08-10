@@ -75,6 +75,19 @@
 </head>
 <body>
 
+
+  <select id="lang-switcher" onchange="localStorage.setItem('plannery-language', this.value); applyLoginLanguage();" style="position: fixed; top: 15px; right: 15px; padding: 8px; border-radius: 8px; border: 1px solid #ddd; font-size: 13px; background-color: white;">
+    <option value="en">🌐 English</option>
+    <option value="es">🌐 Español</option>
+    <option value="pl">🌐 Polski</option>
+    <option value="fr">🌐 Français</option>
+    <option value="zh">🌐 中文</option>
+    <option value="pt">🌐 Português</option>
+    <option value="de">🌐 Deutsch</option>
+    <option value="it">🌐 Italiano</option>
+    <option value="hi">🌐 हिन्दी</option>
+  </select>
+
   <div class="card">
     <img src="plannery_logo.png" style="width: 180px; height: auto; margin-bottom: 10px;">
     <h2 id="i18n-heading">Log In</h2>
@@ -131,6 +144,7 @@
       document.getElementById('i18n-noaccount').textContent = t.noAccount;
       document.getElementById('i18n-signup').textContent = t.signUp;
     }
+    document.getElementById('lang-switcher').value = localStorage.getItem('plannery-language') || 'en';
     applyLoginLanguage();
   </script>
 
