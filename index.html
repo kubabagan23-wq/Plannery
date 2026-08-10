@@ -144,7 +144,18 @@
 
   <header>
     <img src="plannery_logo.png">
-    <div style="display: flex; gap: 10px;">
+    <div style="display: flex; gap: 10px; align-items: center; margin-right: 8px;">
+      <select id="lang-switcher" onchange="localStorage.setItem('plannery-language', this.value); applySiteLanguage();" style="padding: 8px; border-radius: 8px; border: 1px solid #ddd; font-size: 13px; background-color: white;">
+        <option value="en">🌐 English</option>
+        <option value="es">🌐 Español</option>
+        <option value="pl">🌐 Polski</option>
+        <option value="fr">🌐 Français</option>
+        <option value="zh">🌐 中文</option>
+        <option value="pt">🌐 Português</option>
+        <option value="de">🌐 Deutsch</option>
+        <option value="it">🌐 Italiano</option>
+        <option value="hi">🌐 हिन्दी</option>
+      </select>
       <a href="login.html"><button class="btn-secondary i18n-login">Log In</button></a>
       <a href="createanaccount.html"><button class="btn-primary i18n-create">Create Account</button></a>
     </div>
@@ -236,6 +247,8 @@
       const f3d = document.getElementById('i18n-f3d'); if (f3d) f3d.textContent = t.f3d;
       const contact = document.getElementById('i18n-contact'); if (contact) contact.textContent = t.contact;
     }
+    const savedLangSelector = document.getElementById('lang-switcher');
+    if (savedLangSelector) savedLangSelector.value = localStorage.getItem('plannery-language') || 'en';
     applySiteLanguage();
   </script>
 </body>
