@@ -274,8 +274,6 @@
 
       <button onclick="logOut()" id="logout-btn" style="width: 100%; height: 40px; border-radius: 8px; font-weight: bold; margin-top: 10px;"></button>
 
-      <button onclick="deactivateAccount()" id="deactivate-btn" style="width: 100%; height: 40px; border-radius: 8px; margin-top: 10px;"></button>
-
       <button onclick="openDeleteAccountModal()" id="delete-btn" style="width: 100%; height: 40px; border-radius: 8px; margin-top: 10px; color: red;"></button>
       <p id="delete-info-message" style="font-size: 12px; color: #777; display:none;"></p>
 
@@ -323,9 +321,7 @@
     // ---- Translations ----
     const translations = {
       en: {
-        settings: "Settings", theme: "Theme", language: "Language", logOut: "Log Out",
-        deactivate: "Deactivate Account", deleteAccount: "Delete Account",
-        deleteInfo: "Deleting an account permanently requires a secure server step we haven't built yet, so it can't be done safely from this page. Use Deactivate for now.",
+        settings: "Settings", theme: "Theme", language: "Language", logOut: "Log Out", deleteAccount: "Delete Account",
         backToToday: "Back to Today", today: "TODAY", nothingPlanned: "Nothing planned.",
         addTask: "Add Task", saveChanges: "Save Changes", cancelEdit: "Cancel Edit", editTask: "Edit Task",
         title: "Title", from: "From", to: "To", location: "Location", description: "Description",
@@ -353,9 +349,7 @@
         deleteModalConfirmBtn: "Permanently Delete", deleteModalCancelBtn: "Cancel"
       },
       es: {
-        settings: "Configuración", theme: "Tema", language: "Idioma", logOut: "Cerrar sesión",
-        deactivate: "Desactivar cuenta", deleteAccount: "Eliminar cuenta",
-        deleteInfo: "Eliminar una cuenta de forma permanente requiere un paso seguro del servidor que aún no hemos creado, así que no se puede hacer de forma segura desde esta página. Usa Desactivar por ahora.",
+        settings: "Configuración", theme: "Tema", language: "Idioma", logOut: "Cerrar sesión", deleteAccount: "Eliminar cuenta",
         backToToday: "Volver a hoy", today: "HOY", nothingPlanned: "Nada planeado.",
         addTask: "Agregar tarea", saveChanges: "Guardar cambios", cancelEdit: "Cancelar edición", editTask: "Editar tarea",
         title: "Título", from: "Desde", to: "Hasta", location: "Ubicación", description: "Descripción",
@@ -383,9 +377,7 @@
         timeFormat: "Formato de hora", hour24: "24 horas", hour12: "12 horas"
       },
       pl: {
-        settings: "Ustawienia", theme: "Motyw", language: "Język", logOut: "Wyloguj się",
-        deactivate: "Dezaktywuj konto", deleteAccount: "Usuń konto",
-        deleteInfo: "Trwałe usunięcie konta wymaga bezpiecznego kroku po stronie serwera, którego jeszcze nie zbudowaliśmy, więc nie można tego bezpiecznie zrobić z tej strony. Na razie użyj Dezaktywuj.",
+        settings: "Ustawienia", theme: "Motyw", language: "Język", logOut: "Wyloguj się", deleteAccount: "Usuń konto",
         backToToday: "Powrót do dzisiaj", today: "DZIŚ", nothingPlanned: "Nic nie zaplanowano.",
         addTask: "Dodaj zadanie", saveChanges: "Zapisz zmiany", cancelEdit: "Anuluj edycję", editTask: "Edytuj zadanie",
         title: "Tytuł", from: "Od", to: "Do", location: "Lokalizacja", description: "Opis",
@@ -413,9 +405,7 @@
         timeFormat: "Format czasu", hour24: "24-godzinny", hour12: "12-godzinny"
       },
       fr: {
-        settings: "Paramètres", theme: "Thème", language: "Langue", logOut: "Se déconnecter",
-        deactivate: "Désactiver le compte", deleteAccount: "Supprimer le compte",
-        deleteInfo: "La suppression définitive d'un compte nécessite une étape serveur sécurisée que nous n'avons pas encore mise en place, donc cela ne peut pas être fait en toute sécurité depuis cette page. Utilisez Désactiver pour l'instant.",
+        settings: "Paramètres", theme: "Thème", language: "Langue", logOut: "Se déconnecter", deleteAccount: "Supprimer le compte",
         backToToday: "Retour à aujourd'hui", today: "AUJOURD'HUI", nothingPlanned: "Rien de prévu.",
         addTask: "Ajouter une tâche", saveChanges: "Enregistrer", cancelEdit: "Annuler la modification", editTask: "Modifier la tâche",
         title: "Titre", from: "De", to: "À", location: "Lieu", description: "Description",
@@ -443,9 +433,7 @@
         timeFormat: "Format de l'heure", hour24: "24 heures", hour12: "12 heures"
       },
       zh: {
-        settings: "设置", theme: "主题", language: "语言", logOut: "退出登录",
-        deactivate: "停用账户", deleteAccount: "删除账户",
-        deleteInfo: "永久删除账户需要一个我们尚未构建的安全服务器步骤，因此无法在此页面上安全完成。请暂时使用“停用”。",
+        settings: "设置", theme: "主题", language: "语言", logOut: "退出登录", deleteAccount: "删除账户",
         backToToday: "返回今天", today: "今天", nothingPlanned: "没有安排。",
         addTask: "添加任务", saveChanges: "保存更改", cancelEdit: "取消编辑", editTask: "编辑任务",
         title: "标题", from: "从", to: "到", location: "地点", description: "描述",
@@ -473,9 +461,7 @@
         timeFormat: "时间格式", hour24: "24小时制", hour12: "12小时制"
       },
       pt: {
-        settings: "Configurações", theme: "Tema", language: "Idioma", logOut: "Sair",
-        deactivate: "Desativar conta", deleteAccount: "Excluir conta",
-        deleteInfo: "Excluir uma conta permanentemente requer uma etapa segura no servidor que ainda não construímos, então não pode ser feito com segurança nesta página. Use Desativar por enquanto.",
+        settings: "Configurações", theme: "Tema", language: "Idioma", logOut: "Sair", deleteAccount: "Excluir conta",
         backToToday: "Voltar para hoje", today: "HOJE", nothingPlanned: "Nada planejado.",
         addTask: "Adicionar tarefa", saveChanges: "Salvar alterações", cancelEdit: "Cancelar edição", editTask: "Editar tarefa",
         title: "Título", from: "De", to: "Até", location: "Local", description: "Descrição",
@@ -503,9 +489,7 @@
         timeFormat: "Formato de hora", hour24: "24 horas", hour12: "12 horas"
       },
       de: {
-        settings: "Einstellungen", theme: "Design", language: "Sprache", logOut: "Abmelden",
-        deactivate: "Konto deaktivieren", deleteAccount: "Konto löschen",
-        deleteInfo: "Das dauerhafte Löschen eines Kontos erfordert einen sicheren Serverschritt, den wir noch nicht implementiert haben, daher kann dies auf dieser Seite nicht sicher erfolgen. Verwenden Sie vorerst Deaktivieren.",
+        settings: "Einstellungen", theme: "Design", language: "Sprache", logOut: "Abmelden", deleteAccount: "Konto löschen",
         backToToday: "Zurück zu heute", today: "HEUTE", nothingPlanned: "Nichts geplant.",
         addTask: "Aufgabe hinzufügen", saveChanges: "Änderungen speichern", cancelEdit: "Bearbeitung abbrechen", editTask: "Aufgabe bearbeiten",
         title: "Titel", from: "Von", to: "Bis", location: "Ort", description: "Beschreibung",
@@ -533,9 +517,7 @@
         timeFormat: "Zeitformat", hour24: "24-Stunden", hour12: "12-Stunden"
       },
       it: {
-        settings: "Impostazioni", theme: "Tema", language: "Lingua", logOut: "Esci",
-        deactivate: "Disattiva account", deleteAccount: "Elimina account",
-        deleteInfo: "L'eliminazione permanente di un account richiede un passaggio server sicuro che non abbiamo ancora creato, quindi non può essere eseguita in modo sicuro da questa pagina. Per ora usa Disattiva.",
+        settings: "Impostazioni", theme: "Tema", language: "Lingua", logOut: "Esci", deleteAccount: "Elimina account",
         backToToday: "Torna a oggi", today: "OGGI", nothingPlanned: "Nessun impegno.",
         addTask: "Aggiungi attività", saveChanges: "Salva modifiche", cancelEdit: "Annulla modifica", editTask: "Modifica attività",
         title: "Titolo", from: "Da", to: "A", location: "Luogo", description: "Descrizione",
@@ -563,9 +545,7 @@
         timeFormat: "Formato ora", hour24: "24 ore", hour12: "12 ore"
       },
       hi: {
-        settings: "सेटिंग्स", theme: "थीम", language: "भाषा", logOut: "लॉग आउट",
-        deactivate: "खाता निष्क्रिय करें", deleteAccount: "खाता हटाएं",
-        deleteInfo: "किसी खाते को स्थायी रूप से हटाने के लिए एक सुरक्षित सर्वर चरण की आवश्यकता होती है जिसे हमने अभी तक नहीं बनाया है, इसलिए यह इस पेज से सुरक्षित रूप से नहीं किया जा सकता। अभी के लिए निष्क्रिय करें का उपयोग करें।",
+        settings: "सेटिंग्स", theme: "थीम", language: "भाषा", logOut: "लॉग आउट", deleteAccount: "खाता हटाएं",
         backToToday: "आज पर वापस जाएं", today: "आज", nothingPlanned: "कुछ भी योजनाबद्ध नहीं है।",
         addTask: "कार्य जोड़ें", saveChanges: "परिवर्तन सहेजें", cancelEdit: "संपादन रद्द करें", editTask: "कार्य संपादित करें",
         title: "शीर्षक", from: "से", to: "तक", location: "स्थान", description: "विवरण",
@@ -665,9 +645,7 @@
       document.getElementById('option-12h').textContent = t('hour12');
       document.getElementById('label-language').textContent = t('language');
       document.getElementById('logout-btn').textContent = t('logOut');
-      document.getElementById('deactivate-btn').textContent = t('deactivate');
       document.getElementById('delete-btn').textContent = t('deleteAccount');
-      document.getElementById('delete-info-message').textContent = t('deleteInfo');
 
       document.getElementById('back-to-today-btn').textContent = t('backToToday');
 
@@ -797,7 +775,7 @@
       if (pendingUsername) {
         const { error: upsertError } = await supabaseClient
           .from('profiles')
-          .upsert([{ id: currentUser.id, username: pendingUsername, deactivated: false }]);
+          .upsert([{ id: currentUser.id, username: pendingUsername }]);
 
         if (!upsertError) {
           document.getElementById('username-label').textContent = pendingUsername;
@@ -810,13 +788,6 @@
     }
 
     async function logOut() {
-      await supabaseClient.auth.signOut();
-      window.location.href = "login.html";
-    }
-
-    async function deactivateAccount() {
-      if (!confirm("Deactivate your account? You'll be logged out and your account will be marked inactive.")) return;
-      await supabaseClient.from('profiles').update({ deactivated: true }).eq('id', currentUser.id);
       await supabaseClient.auth.signOut();
       window.location.href = "login.html";
     }
