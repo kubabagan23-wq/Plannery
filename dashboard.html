@@ -162,10 +162,10 @@
     <input type="text" id="new-task-location" autocomplete="off" style="width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 10px; box-sizing: border-box;">
 
     <label id="label-description" style="font-weight: bold; font-size: 14px;"></label>
-    <textarea id="new-task-description" rows="2" style="width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 10px; box-sizing: border-box; font-family: Arial, sans-serif;"></textarea>
+    <textarea id="new-task-description" rows="2" oninput="autoGrowTextarea(this)" style="width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 10px; box-sizing: border-box; font-family: Arial, sans-serif; overflow: hidden; resize: none;"></textarea>
 
     <label id="label-note" style="font-weight: bold; font-size: 14px;"></label>
-    <textarea id="new-task-note" rows="2" style="width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 10px; box-sizing: border-box; font-family: Arial, sans-serif;"></textarea>
+    <textarea id="new-task-note" rows="2" oninput="autoGrowTextarea(this)" style="width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 10px; box-sizing: border-box; font-family: Arial, sans-serif; overflow: hidden; resize: none;"></textarea>
 
     <label id="label-attachment" style="font-weight: bold; font-size: 14px;"></label>
     <input type="file" id="new-task-photo" accept="image/*" style="width: 100%; margin-top: 5px; margin-bottom: 10px;">
@@ -1387,6 +1387,11 @@
       renderAgenda();
     }
 
+    function autoGrowTextarea(el) {
+      el.style.height = "auto";
+      el.style.height = el.scrollHeight + "px";
+    }
+
     function clearForm() {
       document.getElementById('new-task-title').value = "";
       document.getElementById('new-task-start').value = "";
@@ -1394,6 +1399,8 @@
       document.getElementById('new-task-location').value = "";
       document.getElementById('new-task-description').value = "";
       document.getElementById('new-task-note').value = "";
+      document.getElementById('new-task-description').style.height = "auto";
+      document.getElementById('new-task-note').style.height = "auto";
       document.getElementById('new-task-photo').value = "";
       document.getElementById('new-task-color').value = "#cd6f01";
       document.getElementById('new-task-repeat').value = "none";
@@ -1496,6 +1503,10 @@
       document.getElementById('new-task-location').value = task.location || "";
       document.getElementById('new-task-description').value = task.description || "";
       document.getElementById('new-task-note').value = task.note || "";
+      setTimeout(() => {
+        autoGrowTextarea(document.getElementById('new-task-description'));
+        autoGrowTextarea(document.getElementById('new-task-note'));
+      }, 0);
       document.getElementById('new-task-color').value = task.color || "#cd6f01";
       document.getElementById('new-task-repeat').value = task.repeat_type || "none";
       document.getElementById('new-task-repeat-interval').value = task.repeat_interval || 1;
@@ -1576,6 +1587,7 @@
           const descEl = document.createElement('div');
           descEl.style.fontSize = "13px";
           descEl.style.marginTop = "4px";
+          descEl.style.whiteSpace = "pre-wrap";
           descEl.textContent = task.description;
           row.appendChild(descEl);
         }
@@ -1586,6 +1598,7 @@
           noteEl.style.marginTop = "4px";
           noteEl.style.fontStyle = "italic";
           noteEl.style.color = "#777";
+          noteEl.style.whiteSpace = "pre-wrap";
           noteEl.textContent = "Note: " + task.note;
           row.appendChild(noteEl);
         }
