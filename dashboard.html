@@ -122,6 +122,18 @@
       <div style="overflow-x: auto;">
         <div id="calendar" style="width: 1225px; max-width: 100%; display: grid; grid-template-columns: repeat(7, minmax(90px,175px)); gap: 5px;"></div>
       </div>
+
+      <div id="ai-box" style="margin-top: 20px; max-width: 700px; border: 2px solid currentColor; border-radius: 10px; padding: 12px; box-sizing: border-box; background-color: inherit; color: inherit;">
+        <div id="ai-title" style="font-weight: bold; margin-bottom: 8px;"></div>
+        <div id="ai-messages" style="max-height: 220px; overflow-y: auto; font-size: 14px; margin-bottom: 8px;">
+          <div id="ai-welcome" style="margin: 4px 0; padding: 6px 10px; border-radius: 8px; background-color: rgba(128,128,128,0.25); max-width: 85%;"></div>
+        </div>
+        <div style="display: flex; gap: 6px;">
+          <input type="text" id="ai-input" autocomplete="off" onkeydown="if (event.key === 'Enter') sendAiMessage()" style="flex: 1; padding: 8px; box-sizing: border-box; min-width: 0;">
+          <button id="ai-send-btn" onclick="sendAiMessage()" style="padding: 0 16px; border-radius: 6px; font-weight: bold; background-color: #cd6f01; color: white; border: none;"></button>
+        </div>
+        <p id="ai-error" style="color: red; font-size: 12px; margin: 6px 0 0 0;"></p>
+      </div>
     </div>
 
     <div class="sidebar-box" style="width: 280px; flex-shrink: 0; border: 2px solid currentColor; border-radius: 10px; padding: 15px; box-sizing: border-box;">
@@ -321,6 +333,8 @@
     // ---- Translations ----
     const translations = {
       en: {
+        aiTitle: "✨ Plannery Assistant", aiPlaceholder: "Ask about your schedule...", aiSend: "Send", aiThinking: "Thinking...",
+        aiWelcome: "Hi! Ask me about your upcoming tasks or for help planning your week.", aiError: "Something went wrong. Please try again.",
         settings: "Settings", theme: "Theme", language: "Language", logOut: "Log Out", deleteAccount: "Delete Account",
         backToToday: "Back to Today", today: "TODAY", nothingPlanned: "Nothing planned.",
         addTask: "Add Task", saveChanges: "Save Changes", cancelEdit: "Cancel Edit", editTask: "Edit Task",
@@ -349,6 +363,8 @@
         deleteModalConfirmBtn: "Permanently Delete", deleteModalCancelBtn: "Cancel"
       },
       es: {
+        aiTitle: "✨ Asistente de Plannery", aiPlaceholder: "Pregunta sobre tu agenda...", aiSend: "Enviar", aiThinking: "Pensando...",
+        aiWelcome: "¡Hola! Pregúntame sobre tus próximas tareas o pide ayuda para planificar tu semana.", aiError: "Algo salió mal. Inténtalo de nuevo.",
         settings: "Configuración", theme: "Tema", language: "Idioma", logOut: "Cerrar sesión", deleteAccount: "Eliminar cuenta",
         backToToday: "Volver a hoy", today: "HOY", nothingPlanned: "Nada planeado.",
         addTask: "Agregar tarea", saveChanges: "Guardar cambios", cancelEdit: "Cancelar edición", editTask: "Editar tarea",
@@ -377,6 +393,8 @@
         timeFormat: "Formato de hora", hour24: "24 horas", hour12: "12 horas"
       },
       pl: {
+        aiTitle: "✨ Asystent Plannery", aiPlaceholder: "Zapytaj o swój harmonogram...", aiSend: "Wyślij", aiThinking: "Myślę...",
+        aiWelcome: "Cześć! Zapytaj o nadchodzące zadania lub poproś o pomoc w planowaniu tygodnia.", aiError: "Coś poszło nie tak. Spróbuj ponownie.",
         settings: "Ustawienia", theme: "Motyw", language: "Język", logOut: "Wyloguj się", deleteAccount: "Usuń konto",
         backToToday: "Powrót do dzisiaj", today: "DZIŚ", nothingPlanned: "Nic nie zaplanowano.",
         addTask: "Dodaj zadanie", saveChanges: "Zapisz zmiany", cancelEdit: "Anuluj edycję", editTask: "Edytuj zadanie",
@@ -405,6 +423,8 @@
         timeFormat: "Format czasu", hour24: "24-godzinny", hour12: "12-godzinny"
       },
       fr: {
+        aiTitle: "✨ Assistant Plannery", aiPlaceholder: "Posez une question sur votre planning...", aiSend: "Envoyer", aiThinking: "Réflexion...",
+        aiWelcome: "Bonjour ! Posez-moi des questions sur vos prochaines tâches ou demandez de l'aide pour planifier votre semaine.", aiError: "Une erreur s'est produite. Veuillez réessayer.",
         settings: "Paramètres", theme: "Thème", language: "Langue", logOut: "Se déconnecter", deleteAccount: "Supprimer le compte",
         backToToday: "Retour à aujourd'hui", today: "AUJOURD'HUI", nothingPlanned: "Rien de prévu.",
         addTask: "Ajouter une tâche", saveChanges: "Enregistrer", cancelEdit: "Annuler la modification", editTask: "Modifier la tâche",
@@ -433,6 +453,8 @@
         timeFormat: "Format de l'heure", hour24: "24 heures", hour12: "12 heures"
       },
       zh: {
+        aiTitle: "✨ Plannery 助手", aiPlaceholder: "询问你的日程安排...", aiSend: "发送", aiThinking: "思考中...",
+        aiWelcome: "你好！可以问我即将到来的任务，或让我帮你规划本周。", aiError: "出了点问题，请重试。",
         settings: "设置", theme: "主题", language: "语言", logOut: "退出登录", deleteAccount: "删除账户",
         backToToday: "返回今天", today: "今天", nothingPlanned: "没有安排。",
         addTask: "添加任务", saveChanges: "保存更改", cancelEdit: "取消编辑", editTask: "编辑任务",
@@ -461,6 +483,8 @@
         timeFormat: "时间格式", hour24: "24小时制", hour12: "12小时制"
       },
       pt: {
+        aiTitle: "✨ Assistente do Plannery", aiPlaceholder: "Pergunte sobre sua agenda...", aiSend: "Enviar", aiThinking: "Pensando...",
+        aiWelcome: "Olá! Pergunte sobre suas próximas tarefas ou peça ajuda para planejar sua semana.", aiError: "Algo deu errado. Tente novamente.",
         settings: "Configurações", theme: "Tema", language: "Idioma", logOut: "Sair", deleteAccount: "Excluir conta",
         backToToday: "Voltar para hoje", today: "HOJE", nothingPlanned: "Nada planejado.",
         addTask: "Adicionar tarefa", saveChanges: "Salvar alterações", cancelEdit: "Cancelar edição", editTask: "Editar tarefa",
@@ -489,6 +513,8 @@
         timeFormat: "Formato de hora", hour24: "24 horas", hour12: "12 horas"
       },
       de: {
+        aiTitle: "✨ Plannery-Assistent", aiPlaceholder: "Frag nach deinem Zeitplan...", aiSend: "Senden", aiThinking: "Denke nach...",
+        aiWelcome: "Hallo! Frag mich nach deinen anstehenden Aufgaben oder bitte um Hilfe bei der Wochenplanung.", aiError: "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
         settings: "Einstellungen", theme: "Design", language: "Sprache", logOut: "Abmelden", deleteAccount: "Konto löschen",
         backToToday: "Zurück zu heute", today: "HEUTE", nothingPlanned: "Nichts geplant.",
         addTask: "Aufgabe hinzufügen", saveChanges: "Änderungen speichern", cancelEdit: "Bearbeitung abbrechen", editTask: "Aufgabe bearbeiten",
@@ -517,6 +543,8 @@
         timeFormat: "Zeitformat", hour24: "24-Stunden", hour12: "12-Stunden"
       },
       it: {
+        aiTitle: "✨ Assistente Plannery", aiPlaceholder: "Chiedi del tuo programma...", aiSend: "Invia", aiThinking: "Sto pensando...",
+        aiWelcome: "Ciao! Chiedimi delle tue prossime attività o aiuto per pianificare la settimana.", aiError: "Qualcosa è andato storto. Riprova.",
         settings: "Impostazioni", theme: "Tema", language: "Lingua", logOut: "Esci", deleteAccount: "Elimina account",
         backToToday: "Torna a oggi", today: "OGGI", nothingPlanned: "Nessun impegno.",
         addTask: "Aggiungi attività", saveChanges: "Salva modifiche", cancelEdit: "Annulla modifica", editTask: "Modifica attività",
@@ -545,6 +573,8 @@
         timeFormat: "Formato ora", hour24: "24 ore", hour12: "12 ore"
       },
       hi: {
+        aiTitle: "✨ Plannery सहायक", aiPlaceholder: "अपने शेड्यूल के बारे में पूछें...", aiSend: "भेजें", aiThinking: "सोच रहा हूं...",
+        aiWelcome: "नमस्ते! अपने आने वाले कार्यों के बारे में पूछें या अपने सप्ताह की योजना बनाने में मदद मांगें।", aiError: "कुछ गलत हो गया। कृपया फिर से प्रयास करें।",
         settings: "सेटिंग्स", theme: "थीम", language: "भाषा", logOut: "लॉग आउट", deleteAccount: "खाता हटाएं",
         backToToday: "आज पर वापस जाएं", today: "आज", nothingPlanned: "कुछ भी योजनाबद्ध नहीं है।",
         addTask: "कार्य जोड़ें", saveChanges: "परिवर्तन सहेजें", cancelEdit: "संपादन रद्द करें", editTask: "कार्य संपादित करें",
@@ -611,6 +641,11 @@
       document.getElementById('settings-title').textContent = t('settings');
       updateNotificationsUI();
       document.getElementById('label-account').textContent = t('account');
+
+      document.getElementById('ai-title').textContent = t('aiTitle');
+      document.getElementById('ai-input').placeholder = t('aiPlaceholder');
+      document.getElementById('ai-send-btn').textContent = t('aiSend');
+      document.getElementById('ai-welcome').textContent = t('aiWelcome');
 
       document.getElementById('label-repeat').textContent = t('repeat');
       document.getElementById('opt-repeat-none').textContent = t('repeatNone');
@@ -700,7 +735,7 @@
       return map[theme] || map.light;
     }
 
-    const brandButtonIds = ["save-task-btn", "save-username-btn", "save-password-btn", "save-email-btn", "confirm-delete-btn", "delete-modal-confirm-btn", "agenda-prev-btn", "agenda-next-btn"];
+    const brandButtonIds = ["save-task-btn", "save-username-btn", "save-password-btn", "save-email-btn", "confirm-delete-btn", "delete-modal-confirm-btn", "agenda-prev-btn", "agenda-next-btn", "ai-send-btn"];
 
     function lightenColor(hex, percent) {
       const num = parseInt(hex.replace("#",""), 16);
@@ -911,7 +946,10 @@
 
       const now = new Date();
       const todayKey = dateKeyFromDate(now);
-      const tasksToday = tasksByDate[todayKey] || [];
+      const tasksToday = getTasksForDate(todayKey);
+
+      // Forget reminder records from previous days so the list doesn't grow forever
+      notifiedTaskIds = new Set([...notifiedTaskIds].filter(k => k.includes(todayKey)));
 
       tasksToday.forEach(task => {
         if (!task.start_time || task.completed) return;
@@ -920,8 +958,8 @@
         const taskTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m);
         const minutesUntil = (taskTime - now) / 60000;
 
-        const fifteenMinKey = task.id + "-15min";
-        const startKey = task.id + "-start";
+        const fifteenMinKey = task.id + "-" + todayKey + "-15min";
+        const startKey = task.id + "-" + todayKey + "-start";
 
         // Reminder #1: about 15 minutes before the task starts
         if (!notifiedTaskIds.has(fifteenMinKey) && minutesUntil <= 15 && minutesUntil >= 13) {
@@ -1387,6 +1425,109 @@
       renderAgenda();
     }
 
+    // ---- AI assistant ----
+    let aiHistory = [];
+    let aiBusy = false;
+
+    function addAiMessage(role, text) {
+      const box = document.getElementById('ai-messages');
+      const bubble = document.createElement('div');
+      bubble.style.margin = "4px 0";
+      bubble.style.padding = "6px 10px";
+      bubble.style.borderRadius = "8px";
+      bubble.style.whiteSpace = "pre-wrap";
+      bubble.style.maxWidth = "85%";
+      if (role === 'user') {
+        bubble.style.marginLeft = "auto";
+        bubble.style.backgroundColor = "#cd6f01";
+        bubble.style.color = "#ffffff";
+      } else {
+        bubble.style.backgroundColor = "rgba(128,128,128,0.25)";
+      }
+      bubble.textContent = text;
+      box.appendChild(bubble);
+      box.scrollTop = box.scrollHeight;
+      return bubble;
+    }
+
+    function buildScheduleText() {
+      const lines = [];
+      const start = new Date();
+      for (let i = 0; i < 14; i++) {
+        const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+        const key = dateKeyFromDate(d);
+        getTasksForDate(key).forEach(task => {
+          const time = task.start_time
+            ? task.start_time + (task.end_time ? "-" + task.end_time : "")
+            : "no time set";
+          let line = key + " | " + time + " | " + task.title;
+          if (task.location) line += " | at " + task.location;
+          if (task.completed) line += " | (done)";
+          lines.push(line);
+        });
+      }
+      return lines.length ? lines.join("\n") : "(no tasks in the next 14 days)";
+    }
+
+    async function sendAiMessage() {
+      if (aiBusy) return;
+      const input = document.getElementById('ai-input');
+      const errorEl = document.getElementById('ai-error');
+      const sendBtn = document.getElementById('ai-send-btn');
+      const text = input.value.trim();
+      if (!text) return;
+      errorEl.textContent = "";
+
+      const { data: sessionData } = await supabaseClient.auth.getSession();
+      if (!sessionData.session) {
+        errorEl.textContent = t('aiError');
+        return;
+      }
+
+      input.value = "";
+      addAiMessage('user', text);
+      aiHistory.push({ role: 'user', content: text });
+      aiHistory = aiHistory.slice(-10);
+
+      aiBusy = true;
+      sendBtn.disabled = true;
+      const thinking = addAiMessage('assistant', t('aiThinking'));
+
+      try {
+        const response = await fetch(supabaseUrl + "/functions/v1/ai-assistant", {
+          method: "POST",
+          headers: {
+            "Authorization": "Bearer " + sessionData.session.access_token,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            messages: aiHistory,
+            schedule: buildScheduleText(),
+            today: dateKeyFromDate(new Date()),
+            language: currentLang
+          })
+        });
+        const result = await response.json();
+
+        if (!response.ok || result.error) {
+          thinking.remove();
+          aiHistory.pop();
+          errorEl.textContent = result.error || t('aiError');
+        } else {
+          thinking.textContent = result.reply;
+          aiHistory.push({ role: 'assistant', content: result.reply });
+          aiHistory = aiHistory.slice(-10);
+        }
+      } catch (err) {
+        thinking.remove();
+        aiHistory.pop();
+        errorEl.textContent = t('aiError');
+      }
+
+      aiBusy = false;
+      sendBtn.disabled = false;
+    }
+
     function autoGrowTextarea(el) {
       el.style.height = "auto";
       el.style.height = el.scrollHeight + "px";
@@ -1688,7 +1829,7 @@
         }
 
         if (data && data[0]) {
-          const list = tasksByDate[selectedDateStr];
+          const list = tasksByDate[data[0].date] || [];
           const idx = list.findIndex(t2 => t2.id === editingTaskId);
           if (idx !== -1) list[idx] = data[0];
           const flatIdx = allTasksFlat.findIndex(t2 => t2.id === editingTaskId);
@@ -1814,7 +1955,7 @@
         .delete()
         .eq('id', task.id);
       if (!error) {
-        tasksByDate[selectedDateStr] = tasksByDate[selectedDateStr].filter(t2 => t2.id !== task.id);
+        if (tasksByDate[task.date]) tasksByDate[task.date] = tasksByDate[task.date].filter(t2 => t2.id !== task.id);
         allTasksFlat = allTasksFlat.filter(t2 => t2.id !== task.id);
         renderTaskList();
         renderCalendar();
