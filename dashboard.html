@@ -702,6 +702,16 @@
 
     const brandButtonIds = ["save-task-btn", "save-username-btn", "save-password-btn", "save-email-btn", "confirm-delete-btn", "delete-modal-confirm-btn", "agenda-prev-btn", "agenda-next-btn"];
 
+    function readableTextColor(hex) {
+      const clean = (hex || "#cd6f01").replace("#", "");
+      const full = clean.length === 3 ? clean.split("").map(c => c + c).join("") : clean;
+      const r = parseInt(full.substring(0, 2), 16);
+      const g = parseInt(full.substring(2, 4), 16);
+      const b = parseInt(full.substring(4, 6), 16);
+      const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+      return brightness > 150 ? "#000000" : "#ffffff";
+    }
+
     function lightenColor(hex, percent) {
       const num = parseInt(hex.replace("#",""), 16);
       let r = (num >> 16) + Math.round(255 * percent);
@@ -1312,7 +1322,7 @@
           taskEl.textContent = task.title + (task.repeat_type && task.repeat_type !== 'none' ? " 🔁" : "");
           taskEl.style.fontSize = "12px";
           taskEl.style.backgroundColor = task.color || "#cd6f01";
-          taskEl.style.color = "white";
+          taskEl.style.color = readableTextColor(task.color || "#cd6f01");
           taskEl.style.borderRadius = "4px";
           taskEl.style.padding = "2px 4px";
           taskEl.style.marginTop = "3px";
@@ -1846,10 +1856,6 @@
     loadSavedLanguage();
     checkAuth();
   </script>
-<br>
-  <br>
-  <br>
-  <br>
-  <br>
+
 </body>
 </html>
