@@ -95,11 +95,37 @@
     <input type="email" id="login-email" placeholder="Email">
     <input type="password" id="login-password" placeholder="Password">
     <button onclick="logIn()" id="i18n-btn">Log In</button>
+    <p style="font-size: 14px; margin: 12px 0 0 0;"><a href="#" id="i18n-forgot" onclick="forgotPassword(); return false;">Forgot password?</a></p>
     <p id="login-message" style="color: red; font-size: 14px;"></p>
     <p style="font-size: 14px;"><span id="i18n-noaccount">Don't have an account?</span> <a href="createanaccount.html" id="i18n-signup">Sign up</a></p>
   </div>
 
   <script>
+    async function forgotPassword() {
+      const lang = localStorage.getItem('plannery-language') || 'en';
+      const t = loginTranslations[lang] || loginTranslations.en;
+      const messageEl = document.getElementById('login-message');
+      const email = document.getElementById('login-email').value.trim();
+      messageEl.style.color = "red";
+
+      if (!email) {
+        messageEl.textContent = t.needEmail;
+        return;
+      }
+
+      const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+        redirectTo: new URL('reset-password.html', window.location.href).toString()
+      });
+
+      if (error) {
+        messageEl.textContent = error.message;
+        return;
+      }
+
+      messageEl.style.color = "green";
+      messageEl.textContent = t.sent;
+    }
+
     async function logIn() {
       const email = document.getElementById('login-email').value;
       const password = document.getElementById('login-password').value;
@@ -124,15 +150,15 @@
 
   <script>
     const loginTranslations = {
-      en: { heading: "Log In", emailPh: "Email", passPh: "Password", btn: "Log In", noAccount: "Don't have an account?", signUp: "Sign up" },
-      es: { heading: "Iniciar sesión", emailPh: "Correo electrónico", passPh: "Contraseña", btn: "Iniciar sesión", noAccount: "¿No tienes una cuenta?", signUp: "Regístrate" },
-      pl: { heading: "Zaloguj się", emailPh: "Email", passPh: "Hasło", btn: "Zaloguj się", noAccount: "Nie masz konta?", signUp: "Zarejestruj się" },
-      fr: { heading: "Se connecter", emailPh: "Email", passPh: "Mot de passe", btn: "Se connecter", noAccount: "Vous n'avez pas de compte ?", signUp: "S'inscrire" },
-      zh: { heading: "登录", emailPh: "邮箱", passPh: "密码", btn: "登录", noAccount: "还没有账户？", signUp: "注册" },
-      pt: { heading: "Entrar", emailPh: "Email", passPh: "Senha", btn: "Entrar", noAccount: "Não tem uma conta?", signUp: "Cadastre-se" },
-      de: { heading: "Anmelden", emailPh: "E-Mail", passPh: "Passwort", btn: "Anmelden", noAccount: "Noch kein Konto?", signUp: "Registrieren" },
-      it: { heading: "Accedi", emailPh: "Email", passPh: "Password", btn: "Accedi", noAccount: "Non hai un account?", signUp: "Registrati" },
-      hi: { heading: "लॉग इन करें", emailPh: "ईमेल", passPh: "पासवर्ड", btn: "लॉग इन करें", noAccount: "खाता नहीं है?", signUp: "साइन अप करें" }
+      en: { heading: "Log In", emailPh: "Email", passPh: "Password", btn: "Log In", noAccount: "Don't have an account?", signUp: "Sign up", forgot: "Forgot password?", needEmail: "Type your email above first, then click Forgot password again.", sent: "If an account exists for that email, a password reset link has been sent." },
+      es: { heading: "Iniciar sesión", emailPh: "Correo electrónico", passPh: "Contraseña", btn: "Iniciar sesión", noAccount: "¿No tienes una cuenta?", signUp: "Regístrate", forgot: "¿Olvidaste tu contraseña?", needEmail: "Escribe tu correo arriba y vuelve a hacer clic en ¿Olvidaste tu contraseña?", sent: "Si existe una cuenta con ese correo, se ha enviado un enlace para restablecer la contraseña." },
+      pl: { heading: "Zaloguj się", emailPh: "Email", passPh: "Hasło", btn: "Zaloguj się", noAccount: "Nie masz konta?", signUp: "Zarejestruj się", forgot: "Nie pamiętasz hasła?", needEmail: "Najpierw wpisz swój email powyżej, a potem kliknij ponownie Nie pamiętasz hasła?", sent: "Jeśli istnieje konto z tym adresem email, wysłaliśmy link do zresetowania hasła." },
+      fr: { heading: "Se connecter", emailPh: "Email", passPh: "Mot de passe", btn: "Se connecter", noAccount: "Vous n'avez pas de compte ?", signUp: "S'inscrire", forgot: "Mot de passe oublié ?", needEmail: "Saisissez d'abord votre email ci-dessus, puis cliquez à nouveau sur Mot de passe oublié.", sent: "Si un compte existe pour cet email, un lien de réinitialisation a été envoyé." },
+      zh: { heading: "登录", emailPh: "邮箱", passPh: "密码", btn: "登录", noAccount: "还没有账户？", signUp: "注册", forgot: "忘记密码？", needEmail: "请先在上方输入邮箱，然后再次点击“忘记密码”。", sent: "如果该邮箱对应的账户存在，我们已发送密码重置链接。" },
+      pt: { heading: "Entrar", emailPh: "Email", passPh: "Senha", btn: "Entrar", noAccount: "Não tem uma conta?", signUp: "Cadastre-se", forgot: "Esqueceu a senha?", needEmail: "Digite seu email acima primeiro e clique em Esqueceu a senha novamente.", sent: "Se existir uma conta com esse email, enviamos um link para redefinir a senha." },
+      de: { heading: "Anmelden", emailPh: "E-Mail", passPh: "Passwort", btn: "Anmelden", noAccount: "Noch kein Konto?", signUp: "Registrieren", forgot: "Passwort vergessen?", needEmail: "Gib oben zuerst deine E-Mail ein und klicke dann erneut auf Passwort vergessen.", sent: "Falls ein Konto mit dieser E-Mail existiert, wurde ein Link zum Zurücksetzen gesendet." },
+      it: { heading: "Accedi", emailPh: "Email", passPh: "Password", btn: "Accedi", noAccount: "Non hai un account?", signUp: "Registrati", forgot: "Password dimenticata?", needEmail: "Inserisci prima la tua email qui sopra, poi clicca di nuovo su Password dimenticata.", sent: "Se esiste un account con questa email, è stato inviato un link per reimpostare la password." },
+      hi: { heading: "लॉग इन करें", emailPh: "ईमेल", passPh: "पासवर्ड", btn: "लॉग इन करें", noAccount: "खाता नहीं है?", signUp: "साइन अप करें", forgot: "पासवर्ड भूल गए?", needEmail: "पहले ऊपर अपना ईमेल दर्ज करें, फिर दोबारा पासवर्ड भूल गए पर क्लिक करें।", sent: "यदि इस ईमेल का खाता मौजूद है, तो पासवर्ड रीसेट लिंक भेज दिया गया है।" }
     };
 
     function applyLoginLanguage() {
@@ -142,6 +168,7 @@
       document.getElementById('login-email').placeholder = t.emailPh;
       document.getElementById('login-password').placeholder = t.passPh;
       document.getElementById('i18n-btn').textContent = t.btn;
+      document.getElementById('i18n-forgot').textContent = t.forgot;
       document.getElementById('i18n-noaccount').textContent = t.noAccount;
       document.getElementById('i18n-signup').textContent = t.signUp;
     }
