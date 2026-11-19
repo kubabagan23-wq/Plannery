@@ -72,6 +72,21 @@
     a:hover {
       text-decoration: underline;
     }
+    .pw-wrap { position: relative; }
+    .pw-wrap input { padding-right: 46px; }
+    button.pw-toggle {
+      position: absolute;
+      right: 6px;
+      top: 4px;
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      font-size: 18px;
+      background: transparent;
+      color: #555;
+      border-radius: 8px;
+    }
+    button.pw-toggle:hover { opacity: 0.7; }
   </style>
 </head>
 <body>
@@ -93,7 +108,10 @@
     <img src="plannery_logo.png" style="width: 180px; height: auto; margin-bottom: 10px;">
     <h2 id="i18n-heading">Log In</h2>
     <input type="email" id="login-email" placeholder="Email">
-    <input type="password" id="login-password" placeholder="Password">
+    <div class="pw-wrap">
+      <input type="password" id="login-password" placeholder="Password">
+      <button type="button" class="pw-toggle" id="pw-toggle" onclick="togglePassword()" aria-label="Show password">👁️</button>
+    </div>
     <button onclick="logIn()" id="i18n-btn">Log In</button>
     <p style="font-size: 14px; margin: 12px 0 0 0;"><a href="#" id="i18n-forgot" onclick="forgotPassword(); return false;">Forgot password?</a></p>
     <p id="login-message" style="color: red; font-size: 14px;"></p>
@@ -101,6 +119,15 @@
   </div>
 
   <script>
+    function togglePassword() {
+      const input = document.getElementById('login-password');
+      const btn = document.getElementById('pw-toggle');
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      btn.textContent = show ? '🙈' : '👁️';
+      btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+    }
+
     async function forgotPassword() {
       const lang = localStorage.getItem('plannery-language') || 'en';
       const t = loginTranslations[lang] || loginTranslations.en;
