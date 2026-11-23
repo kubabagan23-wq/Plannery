@@ -272,7 +272,7 @@
       </select>
 
       <label id="label-holidays" style="font-weight: bold; font-size: 14px;"></label><br>
-      <select id="holiday-select" onchange="applyHolidayCountry(this.value)" style="width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 15px; box-sizing: border-box;"></select>
+      <div id="holiday-list" style="max-height: 170px; overflow-y: auto; border: 1px solid #ccc; border-radius: 8px; padding: 6px 10px; margin-top: 5px; margin-bottom: 15px; box-sizing: border-box;"></div>
 
       <hr>
 
@@ -1270,7 +1270,7 @@
       BR: [['f',1,6,"Epiphany (Dia de Reis)"],['f',3,8,"Women's Day"],['e',-46,"Ash Wednesday"],['e',-7,"Palm Sunday"],['e',60,"Corpus Christi"],['n',5,0,2,"Mother's Day"],['f',6,12,"Lovers' Day (Dia dos Namorados)"],['f',6,24,"São João (Festa Junina)"],['n',8,0,2,"Father's Day"],['f',10,12,"Children's Day"],['f',10,15,"Teachers' Day"],['f',11,20,"Black Consciousness Day"],['f',12,24,"Christmas Eve"],['f',12,31,"New Year's Eve (Réveillon)"]]
     };
 
-    let holidayCountry = 'off';
+    let holidayCountries = [];
     const holidayYearCache = {};
 
     function easterSunday(year) {
@@ -1337,9 +1337,24 @@
     }
 
     function getHolidaysForDate(key) {
-      if (holidayCountry === 'off') return [];
+      if (!holidayCountries.length) return [];
       const year = parseInt(key.slice(0, 4), 10);
-      return buildHolidaysForYear(holidayCountry, year)[key] || [];
+      const byName = {};
+      const order = [];
+      holidayCountries.forEach(code => {
+        (buildHolidaysForYear(code, year)[key] || []).forEach(name => {
+          if (!byName[name]) { byName[name] = []; order.push(name); }
+          byName[name].push(code);
+        });
+      });
+      // With several countries on, tag holidays that aren't shared by all of them
+      return order.map(name => {
+        const codes = byName[name];
+        if (holidayCountries.length > 1 && codes.length < holidayCountries.length) {
+          return name + " (" + codes.join(", ") + ")";
+        }
+        return name;
+      });
     }
 
     function holidayCountryLabel(code) {
@@ -1352,35 +1367,53 @@
     }
 
     function buildHolidayOptions() {
-      const sel = document.getElementById('holiday-select');
-      if (!sel) return;
-      sel.innerHTML = '';
-      const off = document.createElement('option');
-      off.value = 'off';
-      off.textContent = t('holidaysOff');
-      sel.appendChild(off);
+      const box = document.getElementById('holiday-list');
+      if (!box) return;
+      box.innerHTML = '';
       HOLIDAY_COUNTRIES.forEach(code => {
-        const o = document.createElement('option');
-        o.value = code;
-        o.textContent = holidayCountryLabel(code);
-        sel.appendChild(o);
+        const row = document.createElement('label');
+        row.style.display = 'flex';
+        row.style.alignItems = 'center';
+        row.style.gap = '8px';
+        row.style.padding = '5px 0';
+        row.style.fontSize = '14px';
+        row.style.cursor = 'pointer';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.value = code;
+        cb.checked = holidayCountries.includes(code);
+        cb.style.width = 'auto';
+        cb.style.margin = '0';
+        cb.onchange = toggleHolidayCountry;
+        const span = document.createElement('span');
+        span.textContent = holidayCountryLabel(code);
+        row.appendChild(cb);
+        row.appendChild(span);
+        box.appendChild(row);
       });
-      sel.value = holidayCountry;
     }
 
-    function applyHolidayCountry(value) {
-      holidayCountry = (value === 'off' || HOLIDAY_RULES[value]) ? value : 'off';
-      try { localStorage.setItem('plannery-holidays', holidayCountry); } catch (e) {}
-      const sel = document.getElementById('holiday-select');
-      if (sel) sel.value = holidayCountry;
+    function toggleHolidayCountry() {
+      const checked = [...document.querySelectorAll('#holiday-list input[type="checkbox"]:checked')].map(c => c.value);
+      holidayCountries = HOLIDAY_COUNTRIES.filter(code => checked.includes(code));
+      try { localStorage.setItem('plannery-holidays', JSON.stringify(holidayCountries)); } catch (e) {}
       renderCalendar();
       if (selectedDateStr) showHolidayBanner(selectedDateStr);
     }
 
     function loadSavedHolidays() {
-      let saved = 'off';
-      try { saved = localStorage.getItem('plannery-holidays') || 'off'; } catch (e) {}
-      holidayCountry = (saved === 'off' || HOLIDAY_RULES[saved]) ? saved : 'off';
+      let saved = [];
+      try {
+        const raw = localStorage.getItem('plannery-holidays');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          saved = Array.isArray(parsed) ? parsed : [parsed];
+        }
+      } catch (e) {
+        // Older versions saved a single plain country code such as US
+        try { const raw = localStorage.getItem('plannery-holidays'); if (raw) saved = [raw]; } catch (e2) {}
+      }
+      holidayCountries = HOLIDAY_COUNTRIES.filter(code => saved.includes(code));
     }
 
     function showHolidayBanner(key) {
